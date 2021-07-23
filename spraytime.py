@@ -6,74 +6,8 @@ SPRAY TIME
 Created 2021-06-01
 @author: Jordan Eriksen
 """
-import numpy as np
-import pandas as pd
-import datetime
-from time import sleep
-import time
-import os
-import sys
-import socket
-import subprocess
-import re
-import board
-import busio
-# import adafruit_bno055
-import adafruit_vl6180x
+from Devices.rpi import tof
 
-class tof:
-    '''
-    Class for handling of VL6180x time of lfight sensor with RPi
-    ------------------------------------------------------------
-    Optionally pass the I2C address of the sensor (default is 41)
-
-    range = return distance to object in mm
-    read_lux(gain) = returns lux from sensor according to gain specified:
-    ALS_GAIN_1 = 1x 
-    ALS_GAIN_1_25 = 1.25x
-    ALS_GAIN_1_67 = 1.67x 
-    ALS_GAIN_2_5 = 2.5x 
-    ALS_GAIN_5 = 5x 
-    ALS_GAIN_10 = 10x 
-    ALS_GAIN_20 = 20x 
-    ALS_GAIN_40 = 40x
-    '''
-    def __init__(self,address=41):
-        self.address = address
-        self.i2c = busio.I2C(board.SCL, board.SDA)
-        # Create sensor instance.
-        self.sensor = adafruit_vl6180x.VL6180X(self.i2c)
-        # self.imu = adafruit_bno055.BNO055_I2C(i2c)
-    
-    def range(self,scale=1):
-        '''
-        Get the distance to object in mm*scale where scale has default of 1.
-        '''
-        return scale*self.sensor.range
-
-# class imu:
-#     '''
-#     Class for the handling of the BNO055 9-DOF IMU with RPi
-#     -------------------------------------------------------
-#     '''
-
-#     def __init__(self):
-#         self.i2c = board.I2C()
-#         self.sensor = adafruit_bno055.BNO055_I2C(i2c)
-#         self.last_val = 0xFFFF
-
-#     def temperature(self):
-#         global last_val  # pylint: disable=global-statement
-#         result = self.sensor.temperature
-
-#         if abs(result - self.last_val) == 128:
-#             result = self.sensor.temperature
-#             if abs(result - self.last_val) == 128:
-#                 return 0b00111111 & result
-
-#         last_val = result
-
-#         return result
 
 def setup():
     '''
@@ -134,7 +68,6 @@ def _prime_device():
             break
     
     return 1
-
 
 def run_test(setup_dict, df):
     '''
