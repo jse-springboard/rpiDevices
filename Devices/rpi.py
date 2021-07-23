@@ -155,7 +155,7 @@ class vppr:
         self.mode = mode
         
         # Load a fit curve to manage the offset between demand and actual output pressure
-        self.fitdata = np.load('.//Setup//fit_data.npy',allow_pickle=True)
+        self.fitdata = np.load('./Devices/fit_data.npy',allow_pickle=True)
         self.fit_pressure = np.polynomial.Polynomial.fit(self.fitdata[0,:],self.fitdata[1,:],9)
 
         # Define mode of operation. Default should be hardware ('hw').
