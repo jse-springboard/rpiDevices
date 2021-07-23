@@ -7,7 +7,7 @@ Created 2021-04-23
 @author: Jordan Eriksen
 """
 
-from Devices.rpi import *
+from rpirig import *
 
 # import ctypes
 # import numpy as np
