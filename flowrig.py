@@ -7,7 +7,7 @@ Created 2021-04-23
 @author: Jordan Eriksen
 """
 
-from Devices.rpi import adc24, vppr
+from Devices.rpi import *
 
 
 def get_data(adc24_, vppr_, pressure=0, t0=0, settlingtime=3, progress=['?','?']):

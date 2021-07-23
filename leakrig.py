@@ -6,7 +6,7 @@ LEAKRIG
 Created 2021-05-27
 @author: Jordan Eriksen
 """
-from Devices.rpi import tc08, PCE_Loadcell
+from Devices.rpi import *
 
 
 def get_time():

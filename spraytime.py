@@ -6,7 +6,7 @@ SPRAY TIME
 Created 2021-06-01
 @author: Jordan Eriksen
 """
-from Devices.rpi import tof
+from Devices.rpi import *
 
 
 def setup():
