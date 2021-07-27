@@ -1,5 +1,0 @@
-Adafruit_BNO055.egg-info/PKG-INFO
-Adafruit_BNO055.egg-info/SOURCES.txt
-Adafruit_BNO055.egg-info/dependency_links.txt
-Adafruit_BNO055.egg-info/requires.txt
-Adafruit_BNO055.egg-info/top_level.txt
