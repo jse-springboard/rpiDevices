@@ -20,7 +20,7 @@ from time import sleep
 
 import board
 import busio
-import adafruit_bno055
+import Adafruit_BNO055 as adafruit_bno055
 import adafruit_vl6180x
 from picosdk.usbtc08 import usbtc08
 from picosdk.picohrdl import picohrdl as hrdl
