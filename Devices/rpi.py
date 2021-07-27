@@ -1,4 +1,6 @@
 '''
+Author: Jordan Eriksen
+
 Classes for running test components
 -----------------------------------
 
@@ -31,6 +33,8 @@ class adc24:
     ----------------------------------------------------------
 
     Requires a powered USB hub to power the ADC.
+    SUPPORTS TWO CHANNELS ONLY (AS OF JULY 2021).
+    - 'channel' argument requires two entries.
     '''
 
     def __init__(self, channel=[2,15]):
@@ -294,11 +298,15 @@ class imu:
     '''
     Class for the handling of the BNO055 9-DOF IMU with RPi
     -------------------------------------------------------
+
+    UPDATES REQUIRED:
+    - Support for IMU functions as outputs
+    - KARMAN filter for inertial navigation?
     '''
 
     def __init__(self):
         self.i2c = board.I2C()
-        self.sensor = adafruit_bno055.BNO055_I2C(i2c)
+        self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
         self.last_val = 0xFFFF
 
     def temperature(self):
@@ -320,6 +328,13 @@ class tc08:
     ------------------------------------------------------
 
     Requires a powered USB hub to power the TC08 unit.
+
+    'channel' argument can take any number of inputs but MUST BE A LIST.
+
+    temp, cold_junction = tc8.get_temp()
+    temp = {channel: temperature ... }
+
+    Use tc08.shutdown() after use!
     '''
 
     def __init__(self, channel=[1,2]):
@@ -372,6 +387,8 @@ class tc08:
     def get_temp(self):
         '''
         Collect a data point for all inputs
+
+        Outputs a dictionary of channel numbers and corresponding temperature in Celcius.
         '''
         # Return arrays of temperature for all channels
         temp = self._get_data_single()
