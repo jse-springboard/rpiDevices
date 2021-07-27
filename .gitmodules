@@ -1,0 +1,3 @@
+[submodule "Devices/Adafruit_Python_BNO055"]
+	path = Devices/Adafruit_Python_BNO055
+	url = https://github.com/adafruit/Adafruit_Python_BNO055.git
