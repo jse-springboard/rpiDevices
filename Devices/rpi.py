@@ -37,12 +37,14 @@ class adc24:
     - 'channel' argument requires two entries.
     '''
 
-    def __init__(self, channel=[2,15]):
+    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]}):
         # Create chandle and status ready for use
         self.chandle = ctypes.c_int16()
         self.status = {}
         self.numsamples = 1
-        self.channel = channel # Set input channel here
+        self.channel = list(channel.keys()) # Set input channel here
+        self.coefficients = channel
+        self.numchannels = len(self.channel)
 
         self._startup()
 
@@ -60,24 +62,23 @@ class adc24:
 
         # Open ADC channel
         vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
-        self.status["activeChannel_PT"] = hrdl.HRDLSetAnalogInChannel(self.chandle, self.channel[0], 1, vrange, 1)
-        assert_pico2000_ok(self.status["activeChannel_PT"])
-        self.status["activeChannel_FM"] = hrdl.HRDLSetAnalogInChannel(self.chandle, self.channel[1], 1, vrange, 1)
-        assert_pico2000_ok(self.status["activeChannel_FM"])
 
-        #Get min and max adc values
-        # Setup pointers
-        self.minAdc_P = ctypes.c_int32(0) # Min for pressure transducer
-        self.minAdc_F = ctypes.c_int32(0) # Min for flow meter
-        self.maxAdc_P = ctypes.c_int32(0) # Max for pressure transducer
-        self.maxAdc_F = ctypes.c_int32(0) # Max for flow meter
+        # Define dictionaries of min and max ADC values with channel number as a key
+        self.minAdc = {}
+        self.maxAdc = {}
 
-        # Get min/max outputs for pressure transducer
-        self.status["minMaxAdcCounts_PT"] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc_P), ctypes.byref(self.maxAdc_P), self.channel[0])
-        assert_pico2000_ok(self.status["minMaxAdcCounts_PT"])
-        # Get min/max outputs for flow meter
-        self.status["minMaxAdcCounts_FM"] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc_F), ctypes.byref(self.maxAdc_F), self.channel[1])
-        assert_pico2000_ok(self.status["minMaxAdcCounts_FM"])
+        for i in self.channel:
+            self.status[f'activeChannel_{i}'] = hrdl.HRDLSetAnalogInChannel(self.chandle, i, 1, vrange, 1)
+            assert_pico2000_ok(self.status[f'activeChannel_{i}'])
+
+            # Get min and max adc values
+            # Setup pointers
+            self.minAdc[i] = ctypes.c_int32(0)
+            self.maxAdc[i] = ctypes.c_int32(0)
+
+            # Get min/max outputs for pressure transducer
+            self.status[f'minMaxAdcCounts_{i}'] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc[i]), ctypes.byref(self.maxAdc[i]), i)
+            assert_pico2000_ok(self.status[f'minMaxAdcCounts_{i}'])
         
         # Set sampling time interval
         conversionTime = hrdl.HRDL_CONVERSIONTIME["HRDL_60MS"]
@@ -102,17 +103,22 @@ class adc24:
         Give pointers to ADC method to save output data to
         '''
         overflow = ctypes.c_int16(0)
-        values = (ctypes.c_int32 * (nums_ * 2))()
-        times = (ctypes.c_int32 * (nums_ * 2))()
+        values = (ctypes.c_int32 * (nums_ * self.numchannels))()
+        times = (ctypes.c_int32 * (nums_ * self.numchannels))()
         self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(times), ctypes.byref(values), ctypes.byref(overflow), nums_)
         assert_pico2000_ok(self.status["getTimesAndValues"])
 
         return overflow, values, times
 
-    def all_out(self,nums=4,offset_p=0.,offset_f=-0.105):
+    def all_out(self,nums=4):
         '''
         Collect a data point for all inputs
+        -----------------------------------
+
+        Use 'coeffs' to specify the coefficients used to convert the raw ADC signal ( 0 - self.maxAdc.value )
+        'coeffs' is defined as a dictionary with the key being the channel number and the value being a list of coefficients in increasing order i.e. [x0, x1] where y = x1*x + x0
         '''
+
         # Return arrays of time, pressure and flow rate
         overflow, values, times = self._get_data(nums_=nums)
         
@@ -121,14 +127,18 @@ class adc24:
         ADC outputs data from input channels alternately. Slicing [start:end:interval] used to pick every other data point.
         Conversion equation turns raw ADC output into a physical value
         '''
-        pressure = np.around(((np.average(np.ctypeslib.as_array(values[0::2])) * 21/self.maxAdc_P.value) + offset_p), decimals=4)
-        flowrate = np.around(((np.average(np.ctypeslib.as_array(values[1::2])) * 2.5/self.maxAdc_F.value * 32) + offset_f), decimals=4)
+        output = {}
+        times = {}
 
-        # Uncomment the below to output times as well as data
-        # times_p = np.around(np.average(np.ctypeslib.as_array(times[0::2])/1000),decimals=4)
-        # times_f = np.around(np.average(np.ctypeslib.as_array(times[1::2])/1000),decimals=4)
+        for n in range(self.numchannels):
+            ch = self.channel[n]
+            x0 = self.coefficients[ch][0]
+            x1 = self.coefficients[ch][1]
 
-        return pressure, flowrate #, times_p, times_f
+            output[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
+            times[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
+
+        return output, times
 
     def shutdown(self):
         '''
