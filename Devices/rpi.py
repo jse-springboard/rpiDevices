@@ -20,7 +20,7 @@ from time import sleep
 
 import board
 import busio
-import Adafruit_BNO055 as adafruit_bno055
+# import Adafruit_BNO055 as adafruit_bno055
 import adafruit_vl6180x
 from picosdk.usbtc08 import usbtc08
 from picosdk.picohrdl import picohrdl as hrdl
@@ -33,8 +33,8 @@ class adc24:
     ----------------------------------------------------------
 
     Requires a powered USB hub to power the ADC.
-    SUPPORTS TWO CHANNELS ONLY (AS OF JULY 2021).
-    - 'channel' argument requires two entries.
+    SUPPORTS MULTIPLE CHANNELS
+    - 'channel' argument requires entries as a dictionary containing the channel number as the key and the ADC value conversion coefficients as the values (in a list).
     '''
 
     def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]}):
@@ -304,33 +304,33 @@ class tof:
         '''
         return scale*self.sensor.range
 
-class imu:
-    '''
-    Class for the handling of the BNO055 9-DOF IMU with RPi
-    -------------------------------------------------------
+# class imu:
+#     '''
+#     Class for the handling of the BNO055 9-DOF IMU with RPi
+#     -------------------------------------------------------
 
-    UPDATES REQUIRED:
-    - Support for IMU functions as outputs
-    - KARMAN filter for inertial navigation?
-    '''
+#     UPDATES REQUIRED:
+#     - Support for IMU functions as outputs
+#     - KARMAN filter for inertial navigation?
+#     '''
 
-    def __init__(self):
-        self.i2c = board.I2C()
-        self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
-        self.last_val = 0xFFFF
+#     def __init__(self):
+#         self.i2c = board.I2C()
+#         self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+#         self.last_val = 0xFFFF
 
-    def temperature(self):
-        global last_val  # pylint: disable=global-statement
-        result = self.sensor.temperature
+#     def temperature(self):
+#         global last_val  # pylint: disable=global-statement
+#         result = self.sensor.temperature
 
-        if abs(result - self.last_val) == 128:
-            result = self.sensor.temperature
-            if abs(result - self.last_val) == 128:
-                return 0b00111111 & result
+#         if abs(result - self.last_val) == 128:
+#             result = self.sensor.temperature
+#             if abs(result - self.last_val) == 128:
+#                 return 0b00111111 & result
 
-        last_val = result
+#         last_val = result
 
-        return result
+#         return result
 
 class tc08:
     '''
