@@ -1,10 +1,15 @@
-from Devices.rpi import *
+from rpiDevices.Devices.rpi import adc24
 
-# Start adc instance and initiate system
-adc = adc24(channel={1:[0,10],2:[-0.1,300]})
+if __name__ == '__main__':
+    # Start adc instance and initiate system
+    # Argument to adc24 class call specifies the channel number and the conversion coefficients [x0, x1] for the ADC output ( y = (ADC_out / ADC_max)*x1 + x0 )
+    adc = adc24(channel={1:[0,10],2:[-0.1,300]})
 
-# Output data from all input channels.
-data_output, data_times = adc.all_out()
+    # Output data from all input channels.
+    data_output, data_times = adc.all_out()
 
-channel1_output = {'Time':data_times[1],'Data':data_output[1]}
-channel2_output = {'Time':data_times[2],'Data':data_output[2]}
+    channel1_output = {'Time':data_times[1],'Data':data_output[1]}
+    channel2_output = {'Time':data_times[2],'Data':data_output[2]}
+
+    # Shutdown unit
+    adc.shutdown()
