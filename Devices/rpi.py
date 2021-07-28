@@ -128,7 +128,7 @@ class adc24:
         Conversion equation turns raw ADC output into a physical value
         '''
         output = {}
-        times = {}
+        times_out = {}
 
         for n in range(self.numchannels):
             ch = self.channel[n]
@@ -136,9 +136,9 @@ class adc24:
             x1 = self.coefficients[ch][1]
 
             output[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
-            times[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
+            times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
 
-        return output, times
+        return output, times_out
 
     def shutdown(self):
         '''
