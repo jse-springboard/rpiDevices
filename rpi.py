@@ -463,14 +463,14 @@ class PCE_Loadcell:
          - 0: (Default) Single reading of specified number of samples
          - 1: Single reading of a single sample
         '''
-        self.serial = serial.Serial(
-            port=self.port,
-            baudrate = self.baud,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            timeout=1
-        )
+        # self.serial = serial.Serial(
+        #     port=self.port,
+        #     baudrate = self.baud,
+        #     parity=serial.PARITY_NONE,
+        #     stopbits=serial.STOPBITS_ONE,
+        #     bytesize=serial.EIGHTBITS,
+        #     timeout=1
+        # )
 
         _out = []
 
