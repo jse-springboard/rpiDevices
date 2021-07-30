@@ -147,15 +147,15 @@ class adc24:
         Print out the coefficients used to convert the raw ADC value to an output in analytical form (y = x1 * x + x0).
         '''
         print(f'Coefficients used for channels {self.channel}')
-        for i in self.channel.keys():
+        for i in self.channel:
             
-            if self.channel[i][0] >= 0:
+            if self.coefficients[i][0] >= 0:
                 sign = '+ '
             else:
                 sign = ''
 
             print(f'Ch {i}:')
-            print(f'\t y = {self.channel[i][1]} * x {sign}{self.channel[i][0]}\n')
+            print(f'\t y = {self.coefficients[i][1]} * x {sign}{self.coefficients[i][0]}\n')
 
     def shutdown(self):
         '''
