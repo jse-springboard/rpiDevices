@@ -35,6 +35,9 @@ class adc24:
     Requires a powered USB hub to power the ADC.
     SUPPORTS MULTIPLE CHANNELS
     - 'channel' argument requires entries as a dictionary containing the channel number as the key and the ADC value conversion coefficients as the values (in a list).
+
+    Use channel.value() -> 'coeffs' to specify the coefficients used to convert the raw ADC signal ( 0 -> self.maxAdc.value )
+        'coeffs' is a list of coefficients in increasing order i.e. [x0, x1] where y = x1*x + x0
     '''
 
     def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]}):
@@ -115,8 +118,7 @@ class adc24:
         Collect a data point for all inputs
         -----------------------------------
 
-        Use 'coeffs' to specify the coefficients used to convert the raw ADC signal ( 0 - self.maxAdc.value )
-        'coeffs' is defined as a dictionary with the key being the channel number and the value being a list of coefficients in increasing order i.e. [x0, x1] where y = x1*x + x0
+        
         '''
 
         # Return arrays of time, pressure and flow rate
@@ -139,6 +141,21 @@ class adc24:
             times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
 
         return output, times_out
+
+    def print_coeffs(self):
+        '''
+        Print out the coefficients used to convert the raw ADC value to an output in analytical form (y = x1 * x + x0).
+        '''
+        print(f'Coefficients used for channels {self.channel}')
+        for i in self.channel.keys():
+            
+            if self.channel[i][0] >= 0:
+                sign = '+ '
+            else:
+                sign = ''
+
+            print(f'Ch {i}:')
+            print(f'\t y = {self.channel[i][1]} * x {sign}{self.channel[i][0]}\n')
 
     def shutdown(self):
         '''
