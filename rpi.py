@@ -394,7 +394,7 @@ class tc08:
 
         return temp
 
-    def get_temp(self):
+    def get_temp(self,cold_out='no'):
         '''
         Collect a data point for all inputs
 
@@ -406,7 +406,10 @@ class tc08:
         cold_junction = temp[0]
         temps = {int(ch): temp[int(ch)] for ch in self.channel}
 
-        return temps, cold_junction
+        if str(cold_out) == 'no':
+            return temps
+        else:
+            return temps, cold_junction
 
     def shutdown(self):
         '''
