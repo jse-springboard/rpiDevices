@@ -26,6 +26,7 @@ from picosdk.usbtc08 import usbtc08
 from picosdk.picohrdl import picohrdl as hrdl
 from picosdk.functions import assert_pico2000_ok
 import RPi.GPIO as gpio
+import rpiDevices
 
 class adc24:
     '''
@@ -117,8 +118,6 @@ class adc24:
         '''
         Collect a data point for all inputs
         -----------------------------------
-
-        
         '''
 
         # Return arrays of time, pressure and flow rate
@@ -186,7 +185,8 @@ class vppr:
         self.mode = mode
         
         # Load a fit curve to manage the offset between demand and actual output pressure
-        self.fitdata = np.load('./Devices/fit_data.npy',allow_pickle=True)
+        fit_data_path = f'{rpiDevices.__path__[0]}/Devices/fit_data.npy'
+        self.fitdata = np.load(fit_data_path,allow_pickle=True)
         self.fit_pressure = np.polynomial.Polynomial.fit(self.fitdata[0,:],self.fitdata[1,:],9)
 
         # Define mode of operation. Default should be hardware ('hw').
