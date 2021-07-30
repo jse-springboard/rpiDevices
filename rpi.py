@@ -152,10 +152,10 @@ class adc24:
             if self.coefficients[i][0] >= 0:
                 sign = '+ '
             else:
-                sign = ''
+                sign = '- '
 
             print(f'Ch {i}:')
-            print(f'\t y = {self.coefficients[i][1]} * x {sign}{self.coefficients[i][0]}\n')
+            print(f'\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])}\n')
 
     def shutdown(self):
         '''
