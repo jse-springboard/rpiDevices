@@ -12,14 +12,13 @@ if __name__ == '__main__':
     except:
         channels = [1,3,5,7]
 
-    print(channels)
-    # tc = tc08(channel=channels)
+    tc = tc08(channel=channels)
 
-    # # tc08.get_temp() returns both the temperatures on the channels specified (as a dict) and the temperature of the cold junction.
-    # output_temp = tc.get_temp()
+    # tc08.get_temp() returns both the temperatures on the channels specified (as a dict) and the temperature of the cold junction.
+    output_temp = tc.get_temp()
 
-    # for ch in channels:
-    #     print(f'Ch {ch} temperature = {output_temp[ch]:.2f}')
+    for ch in channels:
+        print(f'Ch {ch} temperature = {output_temp[ch]:.2f}')
 
-    # # Shutdown unit
-    # tc.shutdown()
+    # Shutdown unit
+    tc.shutdown()
