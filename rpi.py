@@ -376,6 +376,7 @@ class tc08:
     def _startup(self):
         # open unit
         self.status["open_unit"] = usbtc08.usb_tc08_open_unit()
+        sleep(0.5)
         assert_pico2000_ok(self.status["open_unit"])
         self.chandle = self.status["open_unit"]
 
