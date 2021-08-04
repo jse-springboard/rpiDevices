@@ -1,5 +1,5 @@
 import sys
-# from rpiDevices.rpi import tc08
+from rpiDevices.rpi import tc08
 
 if __name__ == '__main__':
     # Initiate an instance of the tc08 class to startup the unit
