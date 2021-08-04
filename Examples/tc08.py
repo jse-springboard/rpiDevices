@@ -1,10 +1,16 @@
+import sys
 from rpiDevices.rpi import tc08
 
 if __name__ == '__main__':
     # Initiate an instance of the tc08 class to startup the unit
     # Specify the channels used by the instance.
 
-    channels = [1,3,5,7]
+    try:
+        channels = list(sys.argv[1:])
+        if not channels:
+            raise IndexError
+    except:
+        channels = [1,3,5,7]
 
     tc = tc08(channel=channels)
 
