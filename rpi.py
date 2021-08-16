@@ -1,10 +1,12 @@
 '''
 Author: Jordan Eriksen
 
-Classes for running test components
------------------------------------
+Classes for running sensors and actuators with RPi
+--------------------------------------------------
 
 ADC24 - Picoscope ADC 20/24 and terminal board
+    Reference: https://www.picotech.com/download/manuals/adc20-adc24-high-resolution-data-logger-users-guide.pdf
+    
 TC08 - Picoscope TC08 thermocouple reader
 VPPR - Voltage proportional pressure regulator
 TOF - Time of flight sensor VL6180x
