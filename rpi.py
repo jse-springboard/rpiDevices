@@ -28,6 +28,34 @@ from picosdk.functions import assert_pico2000_ok
 import RPi.GPIO as gpio
 import rpiDevices
 
+
+class handler:
+    '''
+    Handler for rpiDevice async setup and usage
+    -------------------------------------------
+
+    Handler class calls functions without interrupting application flow.
+
+    1. Check available devices
+    2. Open connections to all available devices
+    '''
+    def __init__(self):
+        pass
+
+    def connect(self,devs=['all']):
+        '''
+        Connect to specified devices
+        ----------------------------
+
+        Default (devs) -> Connect to all (devs = ['all'])
+        
+        Options (devs) -> ['all','adc24','tc08','PCELoadcell','tof']
+        '''
+        pass
+
+    def _adc(self,):
+        pass
+
 class adc24:
     '''
     Class for the handling of a Picolog ADC20/24 using PicoSDK
@@ -41,16 +69,26 @@ class adc24:
         'coeffs' is a list of coefficients in increasing order i.e. [x0, x1] where y = x1*x + x0
     '''
 
-    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]}):
+    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]},chandle='None',buffer_size=5):
         # Create chandle and status ready for use
-        self.chandle = ctypes.c_int16()
+        # If channel is started using the handler, use chandle that has already been assigned.
         self.status = {}
-        self.numsamples = 1
+        self.buffer_size = buffer_size
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
 
-        self._startup()
+        # Set output pointers and arrays to save time
+        self.overflow = ctypes.c_int16(0)
+        self.values = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+        self.times = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+        
+        if chandle=='None':
+            self.chandle = ctypes.c_int16()
+            self._startup()
+        else:
+            self.chandle = chandle
+            self._startupAsync()
 
     def _startup(self):
         # Open unit
@@ -60,11 +98,11 @@ class adc24:
         self.chandle=self.status["openUnit"]
 
         # Set mains noise rejection
-        # Reject 50 Hz mains noise
+        # Reject 50 Hz mains noise by passing 0 as argument (<>0 for 60 Hz)
         self.status["mainsRejection"] = hrdl.HRDLSetMains(self.chandle, 0)
         assert_pico2000_ok(self.status["mainsRejection"])
 
-        # Open ADC channel
+        # Set voltage range
         vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
 
         # Define dictionaries of min and max ADC values with channel number as a key
@@ -80,21 +118,49 @@ class adc24:
             self.minAdc[i] = ctypes.c_int32(0)
             self.maxAdc[i] = ctypes.c_int32(0)
 
-            # Get min/max outputs for pressure transducer
+            # Get min/max outputs for each channel
             self.status[f'minMaxAdcCounts_{i}'] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc[i]), ctypes.byref(self.maxAdc[i]), i)
             assert_pico2000_ok(self.status[f'minMaxAdcCounts_{i}'])
         
         # Set sampling time interval
         conversionTime = hrdl.HRDL_CONVERSIONTIME["HRDL_60MS"]
-        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, 121, conversionTime)
+        sampleInterval_ms = len(self.channel)*60 + 1
+        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, sampleInterval_ms, conversionTime)
         assert_pico2000_ok(self.status["samplingInterval"])
 
-    def _get_data(self,nums_=4):
+    def _startupAsync(self):
         '''
-        Function using ADC method to extract data
+        Function handling asynchronous startup
         '''
+        
+    def _setBuffer(self,newSize) -> None:
+        '''
+        Check buffer and update
+        -----------------------
+
+        Set new buffer size if requested buffer is different to the current buffer
+        '''
+        if newSize == self.buffer_size:
+            pass
+        else:
+            self.buffer_size = newSize
+            self.overflow = ctypes.c_int16(0)
+            self.values = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+            self.times = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+
+    def _getBlock(self,bufferRequest):
+        '''
+        Function using ADC block/window method (0 or 1) to extract data
+        ---------------------------------------------------
+
+        Number of samples to take in the block/window
+        buffer_size -> 4
+        '''
+        # Check and set buffer size
+        self._setBuffer(bufferRequest)
+
         # Start sampling with BM_BLOCK (0) method
-        self.status["collectingSamples"] = hrdl.HRDLRun(self.chandle, nums_, 0)
+        self.status["collectingSamples"] = hrdl.HRDLRun(self.chandle, self.buffer_size, 0)
         assert_pico2000_ok(self.status["collectingSamples"])
 
         # While loop to pause program while data is collected
@@ -106,29 +172,118 @@ class adc24:
         Setup pointer to output location with correct size
         Give pointers to ADC method to save output data to
         '''
-        overflow = ctypes.c_int16(0)
-        values = (ctypes.c_int32 * (nums_ * self.numchannels))()
-        times = (ctypes.c_int32 * (nums_ * self.numchannels))()
-        self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(times), ctypes.byref(values), ctypes.byref(overflow), nums_)
+        self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(self.times), ctypes.byref(self.values), ctypes.byref(self.overflow), self.buffer_size)
         assert_pico2000_ok(self.status["getTimesAndValues"])
 
-        return overflow, values, times
+        self.status["stopCollectingUnit"] = hrdl.HRDLStop(self.chandle)
+        assert_pico2000_ok(self.status["closestopCollectingUnitUnit"])
 
-    def all_out(self,nums=4):
+        return self.overflow, self.values, self.times
+
+    def _getWindow(self,bufferRequest):
         '''
-        Collect a data point for all inputs
-        -----------------------------------
+        Function using ADC window method (1) to extract data
+        ----------------------------------------------------
+
+        Number of samples to take in the block
+        buffer_size -> 4
+        '''
+        return self._getStream(bufferRequest,method=1)
+
+    def _getStream(self,bufferRequest,method=2):
+        '''
+        Function using ADC stream method (2) to extract data
+        ----------------------------------------------------
+
+        Buffer size
+        buffer_size -> 5
+        '''
+        # Check and set buffer size
+        self._setBuffer(bufferRequest)
+
+        # Start sampling with BM_STREAM (2) method if not already started
+        try:
+            if self.status["collectingSamples"] == 0:
+                self._startStream(method)
+        except KeyError:
+            self._startStream(method)
+
+        # While loop to pause program while data is collected
+        while hrdl.HRDLReady(self.chandle) == 0:
+            sleep(0.05)
+
+        '''
+        ## Get values
+        Setup pointer to output location with correct size
+        Give pointers to ADC method to save output data to
+        '''
+        # Get values and times
+        self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(self.times), ctypes.byref(self.values), ctypes.byref(self.overflow), self.buffer_size)
+        assert_pico2000_ok(self.status["getTimesAndValues"])
+
+        return self.overflow, self.values, self.times
+
+    def _startWindow(self):
+        '''
+        Function using ADC window method (1) to extract data
+        ----------------------------------------------------
+
+        Use adc24._startStream() to begin stream.
+        Once the stream has been started use adc24._getStream() to collect samples from buffer.
+        '''
+        # Start sampling with BM_WINDOW (1) method
+        self._startStream(method=1)
+
+    def _stopWindow(self):
+        '''
+        Stop streaming data from ADC20/24 device
+        ----------------------------------------
+
+        Use adc24._stopStream() to begin stream.
+        Once the stream has been started use adc24._getStream() to collect samples from buffer.
+        '''
+        # Start sampling with BM_WINDOW (1) method
+        self._stopStream()
+
+    def _startStream(self,method=2):
+        '''
+        Function using ADC stream method (2) to extract data
+        ----------------------------------------------------
+
+        Use adc24._startStream() to begin stream.
+        Once the stream has been started use adc24._getStream() to collect samples from buffer.
+        '''
+        # Start sampling with BM_WINDOW (1) method
+        self.status["collectingSamples"] = hrdl.HRDLRun(self.chandle, self.buffer_size, method)
+        assert_pico2000_ok(self.status["collectingSamples"])
+    
+    def _stopStream(self):
+        '''
+        Stop streaming data from ADC20/24 device
+        ----------------------------------------
+
+        Use adc24._stopStream() to begin stream.
+        Once the stream has been started use adc24._getStream() to collect samples from buffer.
+        '''
+        # Start sampling with BM_WINDOW (1) method
+        self.status["stopCollectingSamples"] = hrdl.HRDLStop(self.chandle)
+        assert_pico2000_ok(self.status["stopCollectingSamples"])
+
+    def all_out(self,buffer_size=4):
+        '''
+        (NEBULA LEGACY) Collect a data point for all inputs
+        ---------------------------------------------------
         '''
 
         # Return arrays of time, pressure and flow rate
-        overflow, values, times = self._get_data(nums_=nums)
+        overflow, values, times = self._getBlock(buffer_size=buffer_size)
         
         '''
         ## Convert the output data from a ctype array to a real value. 
         ADC outputs data from input channels alternately. Slicing [start:end:interval] used to pick every other data point.
         Conversion equation turns raw ADC output into a physical value
         '''
-        output = {}
+        values_out = {}
         times_out = {}
 
         for n in range(self.numchannels):
@@ -136,10 +291,48 @@ class adc24:
             x0 = self.coefficients[ch][0]
             x1 = self.coefficients[ch][1]
 
-            output[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
+            values_out[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
             times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
 
-        return output, times_out
+        return values_out, times_out
+
+    def collect(self,method='block',nsamples=4):
+        '''
+        Collect data from ADC using specified method
+        --------------------------------------------
+
+        METHOD:\n
+        'block'     ->  Collect block of data specified with nsamples per channel.\n
+        'window'    ->  Collect windowed block of data with nsamples per channel.\n
+        'stream'    ->  Collect continuous stream of data. First call begins stream.\n
+         \n
+        [NOT YET SUPPORTED] \n
+        'single'    ->  Get a single value for each channel.
+        '''
+        methods={
+            'block':self._getBlock,
+            'window':self._getWindow,
+            'stream':self._getStream}
+        
+        overflow, values, times = methods[method](nsamples)
+        
+        '''
+        ## Convert the output data from a ctype array to a real value. 
+        ADC outputs data from input channels alternately. Slicing [start:end:interval] used to pick every other data point.
+        Conversion equation turns raw ADC output into a physical value
+        '''
+        values_out = {}
+        times_out = {}
+
+        for n in range(self.numchannels):
+            ch = self.channel[n]
+            x0 = self.coefficients[ch][0]
+            x1 = self.coefficients[ch][1]
+
+            values_out[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
+            times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
+
+        return values_out, times_out
 
     def print_coeffs(self):
         '''
@@ -160,6 +353,12 @@ class adc24:
         '''
         Safely shutdown the ADC using the HRDLCloseUnit command 
         '''
+        try:
+            # Stop collecting, if collecting
+            self._stopStream()
+        except:
+            pass
+
         # Close unit
         self.status["closeUnit"] = hrdl.HRDLCloseUnit(self.chandle)
         assert_pico2000_ok(self.status["closeUnit"])
@@ -321,34 +520,6 @@ class tof:
         '''
         return scale*self.sensor.range
 
-# class imu:
-#     '''
-#     Class for the handling of the BNO055 9-DOF IMU with RPi
-#     -------------------------------------------------------
-
-#     UPDATES REQUIRED:
-#     - Support for IMU functions as outputs
-#     - KARMAN filter for inertial navigation?
-#     '''
-
-#     def __init__(self):
-#         self.i2c = board.I2C()
-#         self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
-#         self.last_val = 0xFFFF
-
-#     def temperature(self):
-#         global last_val  # pylint: disable=global-statement
-#         result = self.sensor.temperature
-
-#         if abs(result - self.last_val) == 128:
-#             result = self.sensor.temperature
-#             if abs(result - self.last_val) == 128:
-#                 return 0b00111111 & result
-
-#         last_val = result
-
-#         return result
-
 class tc08:
     '''
     Class for the handling of a Picolog TC08 using PicoSDK
@@ -497,3 +668,31 @@ class PCE_Loadcell:
                         pass
         
         return _out
+
+# class imu:
+#     '''
+#     Class for the handling of the BNO055 9-DOF IMU with RPi
+#     -------------------------------------------------------
+
+#     UPDATES REQUIRED:
+#     - Support for IMU functions as outputs
+#     - KARMAN filter for inertial navigation?
+#     '''
+
+#     def __init__(self):
+#         self.i2c = board.I2C()
+#         self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+#         self.last_val = 0xFFFF
+
+#     def temperature(self):
+#         global last_val  # pylint: disable=global-statement
+#         result = self.sensor.temperature
+
+#         if abs(result - self.last_val) == 128:
+#             result = self.sensor.temperature
+#             if abs(result - self.last_val) == 128:
+#                 return 0b00111111 & result
+
+#         last_val = result
+
+#         return result
