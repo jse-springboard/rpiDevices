@@ -28,34 +28,6 @@ from picosdk.functions import assert_pico2000_ok
 import RPi.GPIO as gpio
 import rpiDevices
 
-
-class handler:
-    '''
-    Handler for rpiDevice async setup and usage
-    -------------------------------------------
-
-    Handler class calls functions without interrupting application flow.
-
-    1. Check available devices
-    2. Open connections to all available devices
-    '''
-    def __init__(self):
-        pass
-
-    def connect(self,devs=['all']):
-        '''
-        Connect to specified devices
-        ----------------------------
-
-        Default (devs) -> Connect to all (devs = ['all'])
-        
-        Options (devs) -> ['all','adc24','tc08','PCELoadcell','tof']
-        '''
-        pass
-
-    def _adc(self,):
-        pass
-
 class adc24:
     '''
     Class for the handling of a Picolog ADC20/24 using PicoSDK
@@ -85,18 +57,28 @@ class adc24:
         
         if chandle=='None':
             self.chandle = ctypes.c_int16()
-            self._startup()
         else:
             self.chandle = chandle
-            self._startupAsync()
+        
+        self._startup()
 
     def _startup(self):
-        # Open unit
-        self.status["openUnit"] = hrdl.HRDLOpenUnit()
-        assert_pico2000_ok(self.status["openUnit"])
-            
-        self.chandle=self.status["openUnit"]
+        '''
+        Setup device
+        ------------
 
+        Initially check to see if an existing chandle was passed.
+        '''
+        # Check if existing chandle is valid
+        try:
+            self.status["openUnit"] = self.chandle
+            assert_pico2000_ok(self.status["openUnit"])
+        except:
+            # Open unit
+            self.status["openUnit"] = hrdl.HRDLOpenUnit()
+            assert_pico2000_ok(self.status["openUnit"])
+            self.chandle=self.status["openUnit"]
+        
         # Set mains noise rejection
         # Reject 50 Hz mains noise by passing 0 as argument (<>0 for 60 Hz)
         self.status["mainsRejection"] = hrdl.HRDLSetMains(self.chandle, 0)
@@ -128,11 +110,6 @@ class adc24:
         self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, sampleInterval_ms, conversionTime)
         assert_pico2000_ok(self.status["samplingInterval"])
 
-    def _startupAsync(self):
-        '''
-        Function handling asynchronous startup
-        '''
-        
     def _setBuffer(self,newSize) -> None:
         '''
         Check buffer and update
