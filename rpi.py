@@ -351,7 +351,7 @@ class adc24:
 
             self._updateMeta(self.coefficients)
 
-    def rmCh(self,chList=[]):
+    def rmCh(self,chList=[],quiet=0):
         '''
         Remove channels from device
         ---------------------------
@@ -360,8 +360,11 @@ class adc24:
         Channel numbers in the list that are not assigned to the device will be ignored.
         '''
         if not chList:
-            print(f'No channels passed to rmCh(). No change made.')
-            pass
+            if quiet == 0:
+                print(f'No channels passed to rmCh(). No change made.')
+                pass
+            else:
+                pass
         else:
             for i in chList:
                 try:
@@ -383,13 +386,13 @@ class adc24:
             pass
         elif type(chDict) != dict:
             if type(chDict) == list:
-                self.rmCh(self.channel)
+                self.rmCh(self.channel,quiet=1)
                 self.addCh(chDict=chDict,vrange=vrange)
             else:
                 print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
         else:
-            self.rmCh(self.channel)
+            self.rmCh(self.channel,quiet=1)
             self.addCh(chDict=chDict,vrange=vrange)
 
     def all_out(self,buffer_size=4):
