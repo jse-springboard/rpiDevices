@@ -257,9 +257,7 @@ class adc24:
         Once the stream has been started use adc24._getStream() to collect samples from buffer.
         '''
         # Start sampling with BM_WINDOW (1) method
-        self.status["stopCollectingSamples"] = hrdl.HRDLStop(self.chandle)
-        assert_pico2000_ok(self.status["stopCollectingSamples"])
-
+        hrdl.HRDLStop(self.chandle)
         self.streaming = 0
 
     def _resetStream(self):
