@@ -118,7 +118,7 @@ class adc24:
         self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, sampleInterval_ms, conversionTime)
         assert_pico2000_ok(self.status["samplingInterval"])
 
-    def _setBuffer(self,newSize) -> None:
+    def _setBuffer(self,newSize=1) -> None:
         '''
         Check buffer and update
         -----------------------
@@ -266,6 +266,7 @@ class adc24:
         Restart of stream is implied as it is called when collect is first called.
         '''
         self._stopStream()
+        self._setBuffer()
 
     def all_out(self,buffer_size=4):
         '''
