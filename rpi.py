@@ -152,13 +152,12 @@ class adc24:
         Used during adding of new class.
         '''
         self.shutdown()
-        self._startup()
-
+        
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
 
-        self._channelStartup(channel)
+        self._startup()
 
     def _setBuffer(self,newSize=1) -> None:
         '''
