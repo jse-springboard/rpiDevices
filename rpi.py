@@ -185,8 +185,6 @@ class adc24:
         '''
         # Check and set buffer size
         self._setBuffer(bufferRequest)
-
-        print(self.status["collectingSamples"])
         
         # Start sampling with BM_STREAM (2) method if not already started
         try:
@@ -322,8 +320,8 @@ class adc24:
             x0 = self.coefficients[ch][0]
             x1 = self.coefficients[ch][1]
 
-            values_out[self.channel[n]] = np.around(((np.average(np.ctypeslib.as_array(values[n::2])) * x1/self.maxAdc[ch].value) + x0), decimals=4)
-            times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
+            values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::2]) * x1/self.maxAdc[ch].value) + x0)
+            times_out[self.channel[n]] = np.ctypeslib.as_array(times[n::2])/1000
 
         return values_out, times_out
 
