@@ -260,6 +260,13 @@ class adc24:
 
         self.streaming = 0
 
+    def _resetStream(self):
+        '''
+        Stop and start the stream to reset clock on ADC.
+        Restart of stream is implied as it is called when collect is first called.
+        '''
+        self._stopStream()
+
     def all_out(self,buffer_size=4):
         '''
         (NEBULA LEGACY) Collect a data point for all inputs
@@ -287,7 +294,7 @@ class adc24:
 
         return values_out, times_out
 
-    def collect(self,method='block',nsamples=4):
+    def collect(self,method='block',nsamples=4,reset=0):
         '''
         Collect data from ADC using specified method
         --------------------------------------------
@@ -300,6 +307,14 @@ class adc24:
         [NOT YET SUPPORTED] \n
         'single'    ->  Get a single value for each channel.
         '''
+        try:
+            if reset == 0:
+                pass
+            else:
+                self._resetStream()
+        except:
+            self._resetStream()
+        
         methods={
             'block':self._getBlock,
             'window':self._getWindow,
@@ -321,7 +336,7 @@ class adc24:
             x1 = self.coefficients[ch][1]
 
             values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::2]) * x1/self.maxAdc[ch].value) + x0)
-            times_out[self.channel[n]] = np.ctypeslib.as_array(times[n::2])/1000
+            times_out[self.channel[n]] = np.ctypeslib.as_array(times)/1000
 
         return values_out, times_out
 
