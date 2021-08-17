@@ -319,17 +319,17 @@ class adc24:
         Repeating an already defined channel will update the coefficients.
         '''
         if not chDict:
-            print(f'No channels passed to addCh(). No change made.')
+            print(f'ERROR: No channels passed to addCh(). No change made.')
             pass
         elif type(chDict) != dict:
             if type(chDict) == list:
-                print(f'List passed. Channels {chDict} will output volts.')
+                print(f'WARNING: List passed. Channels {chDict} will output volts.')
                 for i in chDict:
                     self.coefficients[i] = [0,2.5]
                 
                 self._updateMeta(self.coefficients)
             else:
-                print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
+                print(f'ERROR: Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
         else:
             for i in chDict:
@@ -338,7 +338,7 @@ class adc24:
                     assert type(chDict[i]) == list
                     assert len(chDict[i]) == 2
                 except AssertionError:
-                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
+                    print(f'ERROR: New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict[i])} with {len(chDict[i])} elements.\nCHANNEL {i} NOT ADDED.')
                     continue
                 
                 # Add coefficients to channel
@@ -361,7 +361,7 @@ class adc24:
         '''
         if not chList:
             if quiet == 0:
-                print(f'No channels passed to rmCh(). No change made.')
+                print(f'ERROR: No channels passed to rmCh(). No change made.')
             else:
                 pass
         else:
@@ -369,7 +369,7 @@ class adc24:
                 try:
                     assert i in self.coefficients
                 except AssertionError:
-                    print(f'Channel {i} not originally assigned. Nothing to remove.')
+                    print(f'ERROR: Channel {i} not originally assigned. Nothing to remove.')
                 self.coefficients.pop(i)
             self._updateMeta(self.coefficients)
 
@@ -381,14 +381,14 @@ class adc24:
         All existing channels are replaced with those specified in the dictionary passed to this method.
         '''
         if not chDict:
-            print(f'No channels passed to modCh(). No change made.')
+            print(f'ERROR: No channels passed to modCh(). No change made.')
             pass
         elif type(chDict) != dict:
             if type(chDict) == list:
                 self.rmCh(self.channel,quiet=1)
                 self.addCh(chDict=chDict,vrange=vrange)
             else:
-                print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
+                print(f'ERROR: Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
         else:
             self.rmCh(self.channel,quiet=1)
