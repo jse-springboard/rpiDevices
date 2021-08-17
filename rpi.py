@@ -381,6 +381,16 @@ class adc24:
         if not chDict:
             print(f'No channels passed to modCh(). No change made.')
             pass
+        elif type(chDict) != dict:
+            if type(chDict) == list:
+                print(f'List passed. Channels {chDict} will output volts.')
+                for i in chDict:
+                    self.coefficients[i] = [0,2.5]
+                
+                self._updateMeta(self.coefficients)
+            else:
+                print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
+                pass
         else:
             for i in chDict:
                 # Check type and length of the input channel dictionary
