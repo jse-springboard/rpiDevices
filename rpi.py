@@ -338,7 +338,7 @@ class adc24:
                     assert type(chDict[i]) == list
                     assert len(chDict[i]) == 2
                 except AssertionError:
-                    print(f'ERROR: New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict[i])} with {len(chDict[i])} elements.\nCHANNEL {i} NOT ADDED.')
+                    print(f'ERROR: New channel {i} incompatible. Must pass a LIST with 2 elements, method instead received {type(chDict[i])}.\nCHANNEL {i} NOT ADDED.')
                     continue
                 
                 # Add coefficients to channel
