@@ -477,6 +477,12 @@ class adc24:
 
         return values_out, times_out
 
+    def stop(self):
+        '''
+        Stop streams
+        '''
+        self._resetStream()
+        
     def printCoeffs(self):
         '''
         Print out the coefficients used to convert the raw ADC value to an output in analytical form (y = x1 * x + x0).
