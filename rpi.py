@@ -114,8 +114,8 @@ class adc24:
         
         # Set sampling time interval
         conversionTime = hrdl.HRDL_CONVERSIONTIME["HRDL_60MS"]
-        sampleInterval_ms = len(self.channel)*60 + 1
-        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, sampleInterval_ms, conversionTime)
+        self.sampleInterval_ms = len(self.channel)*60 + 1
+        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, self.sampleInterval_ms, conversionTime)
         assert_pico2000_ok(self.status["samplingInterval"])
 
     def _setBuffer(self,newSize=1) -> None:
@@ -243,6 +243,8 @@ class adc24:
         # Start sampling with BM_WINDOW (1) method
         self.status["collectingSamples"] = hrdl.HRDLRun(self.chandle, self.buffer_size, method)
         assert_pico2000_ok(self.status["collectingSamples"])
+
+        sleep(self.buffer_size*(self.sampleInterval_ms/1000))
 
         self.streaming = 1
     
