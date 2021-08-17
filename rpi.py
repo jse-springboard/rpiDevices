@@ -15,9 +15,7 @@ PCE_Loadcell - PCE handheld loadcell
 '''
 
 import numpy as np
-import pandas as pd
-import math as m
-import datetime, time, os, sys, subprocess, serial, re, socket, ctypes
+import os, subprocess, serial, re, ctypes
 from time import sleep
 
 import board
@@ -41,9 +39,22 @@ class adc24:
 
     Use channel.value() -> 'coeffs' to specify the coefficients used to convert the raw ADC signal ( 0 -> self.maxAdc.value )
         'coeffs' is a list of coefficients in increasing order i.e. [x0, x1] where y = x1*x + x0
+
+    ## vrange:
+    Use vrange as dict to specify voltage range for each channel. No entry for a declared channel will default to HRDL_2500_MV
+    eg -> vrange = {1:0, 2:1} puts channel 1 in range +/-2500MV and channel 2 in range +/-1250MV.
+
+    HRDL_2500_MV (0) ±2500 mV ADC-20 and ADC-24
+    HRDL_1250_MV (1) ±1250 mV ADC-20 and ADC-24
+    HRDL_625_MV (2) ±625 mV ADC-24 only
+    HRDL_313_MV (3) ±312.5 mV ADC-24 only
+    HRDL_156_MV (4) ±156.25 mV ADC-24 only
+    HRDL_78_MV (5) ±78.125 mV ADC-24 only
+    HRDL_39_MV (6) ±39.0625 mV
+
     '''
 
-    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]},chandle='None',buffer_size=5):
+    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]},vrange=None,chandle='None',buffer_size=5):
         # Create chandle and status ready for use
         # If channel is started using the handler, use chandle that has already been assigned.
         self.status = {}
@@ -52,6 +63,7 @@ class adc24:
         self.coefficients = channel
         self.numchannels = len(self.channel)
         self.streaming = 0
+        self.vrange=vrange
 
         # Set output pointers and arrays to save time
         self.overflow = ctypes.c_int16(0)
@@ -72,16 +84,6 @@ class adc24:
 
         Initially check to see if an existing chandle was passed.
         '''
-        # # Check if existing chandle is valid
-        # try:
-        #     self.status["openUnit"] = self.chandle
-        #     assert_pico2000_ok(self.status["openUnit"])
-        # except:
-        #     # Open unit
-        #     self.status["openUnit"] = hrdl.HRDLOpenUnit()
-        #     assert_pico2000_ok(self.status["openUnit"])
-        #     self.chandle=self.status["openUnit"]
-        
         # Open unit
         self.status["openUnit"] = hrdl.HRDLOpenUnit()
         assert_pico2000_ok(self.status["openUnit"])
@@ -92,14 +94,35 @@ class adc24:
         self.status["mainsRejection"] = hrdl.HRDLSetMains(self.chandle, 0)
         assert_pico2000_ok(self.status["mainsRejection"])
 
-        # Set voltage range
-        vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
+        # Setup channels
+        self._channelStartup(self.channel)
+        
+        # Set sampling time interval
+        conversionTime = hrdl.HRDL_CONVERSIONTIME["HRDL_60MS"]
+        self.sampleInterval_ms = self.numchannels*60 + 1
+        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, self.sampleInterval_ms, conversionTime)
+        assert_pico2000_ok(self.status["samplingInterval"])
 
+    def _channelStartup(self,channel):
+        '''
+        Centralise the setting of new channels. To be called during startup and after assignment of new channels.
+        '''
         # Define dictionaries of min and max ADC values with channel number as a key
         self.minAdc = {}
         self.maxAdc = {}
 
-        for i in self.channel:
+        for i in channel:
+            # Set voltage range
+            try:
+                if i in self.vrange:
+                    vrange = self.vrange[i]
+                else:
+                    self.vrange[i] = 0
+                    vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
+            except TypeError:
+                self.vrange[i] = 0
+                vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
+
             self.status[f'activeChannel_{i}'] = hrdl.HRDLSetAnalogInChannel(self.chandle, i, 1, vrange, 1)
             assert_pico2000_ok(self.status[f'activeChannel_{i}'])
 
@@ -111,12 +134,82 @@ class adc24:
             # Get min/max outputs for each channel
             self.status[f'minMaxAdcCounts_{i}'] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc[i]), ctypes.byref(self.maxAdc[i]), i)
             assert_pico2000_ok(self.status[f'minMaxAdcCounts_{i}'])
-        
-        # Set sampling time interval
-        conversionTime = hrdl.HRDL_CONVERSIONTIME["HRDL_60MS"]
-        self.sampleInterval_ms = len(self.channel)*60 + 1
-        self.status["samplingInterval"] = hrdl.HRDLSetInterval(self.chandle, self.sampleInterval_ms, conversionTime)
-        assert_pico2000_ok(self.status["samplingInterval"])
+
+    def _updateMeta(self,channel):
+        '''
+        Internal function used to update class meta data and set new classes.
+
+        Used during adding of new class.
+        '''
+        self.channel = list(channel.keys()) # Set input channel here
+        self.coefficients = channel
+        self.numchannels = len(self.channel)
+
+        self._channelStartup(channel)
+
+    def addCh(self,chDict={}):
+        '''
+        Add channels to device
+        ----------------------
+
+        Coefficients specified by the dictionary.
+        Repeating an already defined channel will update the coefficients.
+        '''
+        if not chDict:
+            print(f'No channels passed to addCh(). No change made.')
+            pass
+        else:
+            for i in chDict:
+                # Check type and length of the input channel dictionary
+                try:
+                    assert type(chDict[i]) == list
+                    assert len(chDict[i]) == 2
+                except AssertionError:
+                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
+                    continue
+
+                self.channel[i] = chDict[i]
+
+    def rmCh(self,chList=[]):
+        '''
+        Remove channels from device
+        ---------------------------
+
+        Channel numbers to remove are passed as a list to this method.
+        Channel numbers in the list that are not assigned to the device will be ignored.
+        '''
+        if not chList:
+            print(f'No channels passed to rmCh(). No change made.')
+            pass
+        else:
+            for i in chList:
+                try:
+                    assert i in self.channel
+                except AssertionError:
+                    print(f'Channel {i} not assigned. No change made.')
+                self.channel.pop(i)
+
+    def modCh(self,chDict={}):
+        '''
+        Replace all existing channel definitions
+        ----------------------------------------
+
+        All existing channels are replaced with those specified in the dictionary passed to this method.
+        '''
+        if not chDict:
+            print(f'No channels passed to modCh(). No change made.')
+            pass
+        else:
+            for i in chDict:
+                # Check type and length of the input channel dictionary
+                try:
+                    assert type(chDict[i]) == list
+                    assert len(chDict[i]) == 2
+                except AssertionError:
+                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
+                    continue
+
+            self.channel = chDict
 
     def _setBuffer(self,newSize=1) -> None:
         '''
@@ -342,7 +435,7 @@ class adc24:
 
         return values_out, times_out
 
-    def print_coeffs(self):
+    def printCoeffs(self):
         '''
         Print out the coefficients used to convert the raw ADC value to an output in analytical form (y = x1 * x + x0).
         '''
