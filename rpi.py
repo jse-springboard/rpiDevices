@@ -105,7 +105,13 @@ class adc24:
 
     def _channelStartup(self,channel):
         '''
-        Centralise the setting of new channels. To be called during startup and after assignment of new channels.
+        Assign channels to the device
+        -----------------------------
+        
+        Centralise the setting of new channels. To be called during startup and after assignment of new channels.\n
+
+        channel:
+        Either a list of channel numbers or a dictionary with channel numbers as keys and with coefficients as values. 
         '''
         # Define dictionaries of min and max ADC values with channel number as a key
         self.minAdc = {}
@@ -168,7 +174,8 @@ class adc24:
                     print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
                     continue
 
-                self.channel[i] = chDict[i]
+                self.coefficients[i] = chDict[i]
+            self._updateMeta(self.coefficients)
 
     def rmCh(self,chList=[]):
         '''
@@ -184,10 +191,11 @@ class adc24:
         else:
             for i in chList:
                 try:
-                    assert i in self.channel
+                    assert i in self.coefficients
                 except AssertionError:
-                    print(f'Channel {i} not assigned. No change made.')
-                self.channel.pop(i)
+                    print(f'Channel {i} not originally assigned. Nothing to remove.')
+                self.coefficients.pop(i)
+            self._updateMeta(self.coefficients)
 
     def modCh(self,chDict={}):
         '''
@@ -208,8 +216,8 @@ class adc24:
                 except AssertionError:
                     print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
                     continue
-
-            self.channel = chDict
+            self.coefficients = chDict
+            self._updateMeta(self.coefficients)
 
     def _setBuffer(self,newSize=1) -> None:
         '''
