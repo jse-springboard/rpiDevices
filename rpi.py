@@ -184,10 +184,12 @@ class adc24:
         
         # Start sampling with BM_STREAM (2) method if not already started
         try:
-            if self.status["collectingSamples"] == 0:
-                self._startStream(method)
-        except KeyError:
             self._startStream(method)
+            # if self.status["collectingSamples"] == 0:
+            #     self._startStream(method)
+        except KeyError:
+            # self._startStream(method)
+            pass
 
         # While loop to pause program while data is collected
         while hrdl.HRDLReady(self.chandle) == 0:
