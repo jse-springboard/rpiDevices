@@ -180,6 +180,8 @@ class adc24:
         # Check and set buffer size
         self._setBuffer(bufferRequest)
 
+        print(self.status["collectingSamples"])
+        
         # Start sampling with BM_STREAM (2) method if not already started
         try:
             if self.status["collectingSamples"] == 0:
