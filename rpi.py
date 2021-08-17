@@ -371,7 +371,7 @@ class adc24:
                 self.coefficients.pop(i)
             self._updateMeta(self.coefficients)
 
-    def modCh(self,chDict={}):
+    def modCh(self,chDict={},vrange={}):
         '''
         Replace all existing channel definitions
         ----------------------------------------
@@ -384,26 +384,13 @@ class adc24:
         elif type(chDict) != dict:
             if type(chDict) == list:
                 self.rmCh(self.channel)
-                print(f'List passed. Channels {chDict} will output volts.')
-                for i in chDict:
-                    self.coefficients[i] = [0,2.5]
-                
-                self._updateMeta(self.coefficients)
+                self.addCh(chDict=chDict,vrange=vrange)
             else:
                 print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
         else:
             self.rmCh(self.channel)
-            for i in chDict:
-                # Check type and length of the input channel dictionary
-                try:
-                    assert type(chDict[i]) == list
-                    assert len(chDict[i]) == 2
-                except AssertionError:
-                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
-                    continue
-            self.coefficients = chDict
-            self._updateMeta(self.coefficients)
+            self.addCh(chDict=chDict,vrange=vrange)
 
     def all_out(self,buffer_size=4):
         '''
