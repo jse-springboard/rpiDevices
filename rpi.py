@@ -362,7 +362,6 @@ class adc24:
         if not chList:
             if quiet == 0:
                 print(f'No channels passed to rmCh(). No change made.')
-                pass
             else:
                 pass
         else:
