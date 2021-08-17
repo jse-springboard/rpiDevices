@@ -54,7 +54,7 @@ class adc24:
 
     '''
 
-    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]},vrange=None,chandle='None',buffer_size=5):
+    def __init__(self, channel={2:[0,21],15:[-0.105,2.5*32]},vrange={},chandle='None',buffer_size=5):
         # Create chandle and status ready for use
         # If channel is started using the handler, use chandle that has already been assigned.
         self.status = {}
