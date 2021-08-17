@@ -154,8 +154,8 @@ class adc24:
         self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(self.times), ctypes.byref(self.values), ctypes.byref(self.overflow), self.buffer_size)
         assert_pico2000_ok(self.status["getTimesAndValues"])
 
-        self.status["stopCollectingUnit"] = hrdl.HRDLStop(self.chandle)
-        assert_pico2000_ok(self.status["stopCollectingUnit"])
+        # self.status["stopCollectingUnit"] = hrdl.HRDLStop(self.chandle)
+        # assert_pico2000_ok(self.status["stopCollectingUnit"])
 
         return self.overflow, self.values, self.times
 
