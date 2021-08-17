@@ -117,29 +117,33 @@ class adc24:
         self.minAdc = {}
         self.maxAdc = {}
 
-        for i in channel:
-            # Set voltage range
-            try:
-                if i in self.vrange:
-                    vrange = self.vrange[i]
-                else:
+        if not channel:
+            print(f'No channels assigned. Used addCh() to add channels to this device.')
+            pass
+        else:
+            for i in channel:
+                # Set voltage range
+                try:
+                    if i in self.vrange:
+                        vrange = self.vrange[i]
+                    else:
+                        self.vrange[i] = 0
+                        vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
+                except TypeError:
                     self.vrange[i] = 0
                     vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
-            except TypeError:
-                self.vrange[i] = 0
-                vrange = hrdl.HRDL_VOLTAGERANGE["HRDL_2500_MV"]
 
-            self.status[f'activeChannel_{i}'] = hrdl.HRDLSetAnalogInChannel(self.chandle, i, 1, vrange, 1)
-            assert_pico2000_ok(self.status[f'activeChannel_{i}'])
+                self.status[f'activeChannel_{i}'] = hrdl.HRDLSetAnalogInChannel(self.chandle, i, 1, vrange, 1)
+                assert_pico2000_ok(self.status[f'activeChannel_{i}'])
 
-            # Get min and max adc values
-            # Setup pointers
-            self.minAdc[i] = ctypes.c_int32(0)
-            self.maxAdc[i] = ctypes.c_int32(0)
+                # Get min and max adc values
+                # Setup pointers
+                self.minAdc[i] = ctypes.c_int32(0)
+                self.maxAdc[i] = ctypes.c_int32(0)
 
-            # Get min/max outputs for each channel
-            self.status[f'minMaxAdcCounts_{i}'] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc[i]), ctypes.byref(self.maxAdc[i]), i)
-            assert_pico2000_ok(self.status[f'minMaxAdcCounts_{i}'])
+                # Get min/max outputs for each channel
+                self.status[f'minMaxAdcCounts_{i}'] = hrdl.HRDLGetMinMaxAdcCounts(self.chandle, ctypes.byref(self.minAdc[i]), ctypes.byref(self.maxAdc[i]), i)
+                assert_pico2000_ok(self.status[f'minMaxAdcCounts_{i}'])
 
     def _updateMeta(self,channel):
         '''
@@ -147,77 +151,14 @@ class adc24:
 
         Used during adding of new class.
         '''
+        self.shutdown()
+        self._startup()
+
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
 
         self._channelStartup(channel)
-
-    def addCh(self,chDict={}):
-        '''
-        Add channels to device
-        ----------------------
-
-        Coefficients specified by the dictionary.
-        Repeating an already defined channel will update the coefficients.
-        '''
-        if not chDict:
-            print(f'No channels passed to addCh(). No change made.')
-            pass
-        else:
-            for i in chDict:
-                # Check type and length of the input channel dictionary
-                try:
-                    assert type(chDict[i]) == list
-                    assert len(chDict[i]) == 2
-                except AssertionError:
-                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
-                    continue
-
-                self.coefficients[i] = chDict[i]
-            self._updateMeta(self.coefficients)
-
-    def rmCh(self,chList=[]):
-        '''
-        Remove channels from device
-        ---------------------------
-
-        Channel numbers to remove are passed as a list to this method.
-        Channel numbers in the list that are not assigned to the device will be ignored.
-        '''
-        if not chList:
-            print(f'No channels passed to rmCh(). No change made.')
-            pass
-        else:
-            for i in chList:
-                try:
-                    assert i in self.coefficients
-                except AssertionError:
-                    print(f'Channel {i} not originally assigned. Nothing to remove.')
-                self.coefficients.pop(i)
-            self._updateMeta(self.coefficients)
-
-    def modCh(self,chDict={}):
-        '''
-        Replace all existing channel definitions
-        ----------------------------------------
-
-        All existing channels are replaced with those specified in the dictionary passed to this method.
-        '''
-        if not chDict:
-            print(f'No channels passed to modCh(). No change made.')
-            pass
-        else:
-            for i in chDict:
-                # Check type and length of the input channel dictionary
-                try:
-                    assert type(chDict[i]) == list
-                    assert len(chDict[i]) == 2
-                except AssertionError:
-                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
-                    continue
-            self.coefficients = chDict
-            self._updateMeta(self.coefficients)
 
     def _setBuffer(self,newSize=1) -> None:
         '''
@@ -370,6 +311,87 @@ class adc24:
         self._stopStream()
         self._setBuffer()
 
+    def addCh(self,chDict={},vrange={}):
+        '''
+        Add channels to device
+        ----------------------
+
+        Coefficients specified by the dictionary.
+        Repeating an already defined channel will update the coefficients.
+        '''
+        if not chDict:
+            print(f'No channels passed to addCh(). No change made.')
+            pass
+        elif type(chDict) != dict:
+            if type(chDict) == list:
+                print(f'List passed. Channels {chDict} will output volts.')
+                for i in chDict:
+                    self.coefficients[i] = [0,2.5]
+            else:
+                print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
+                pass
+        else:
+            for i in chDict:
+                # Check type and length of the input channel dictionary
+                try:
+                    assert type(chDict[i]) == list
+                    assert len(chDict[i]) == 2
+                except AssertionError:
+                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
+                    continue
+                
+                # Add coefficients to channel
+                self.coefficients[i] = chDict[i]
+
+                # If vrange has been passed, add details to vvrange variable
+                if not vrange:
+                    if i in vrange:
+                        self.vrange[i] = vrange[i]
+
+            self._updateMeta(self.coefficients)
+
+    def rmCh(self,chList=[]):
+        '''
+        Remove channels from device
+        ---------------------------
+
+        Channel numbers to remove are passed as a list to this method.
+        Channel numbers in the list that are not assigned to the device will be ignored.
+        '''
+        if not chList:
+            print(f'No channels passed to rmCh(). No change made.')
+            pass
+        else:
+            for i in chList:
+                try:
+                    assert i in self.coefficients
+                except AssertionError:
+                    print(f'Channel {i} not originally assigned. Nothing to remove.')
+                self.coefficients.pop(i)
+            self._updateMeta(self.coefficients)
+
+    def modCh(self,chDict={}):
+        '''
+        Replace all existing channel definitions
+        ----------------------------------------
+
+        All existing channels are replaced with those specified in the dictionary passed to this method.
+        '''
+        if not chDict:
+            print(f'No channels passed to modCh(). No change made.')
+            pass
+        else:
+            for i in chDict:
+                # Check type and length of the input channel dictionary
+                try:
+                    assert type(chDict[i]) == list
+                    assert len(chDict[i]) == 2
+                except AssertionError:
+                    print(f'New channel {i} incompatible. Must pass a LIST with 2 elements. Method received {type(chDict)} with {len(chDict)} elements.\nNO CHANGE MADE.')
+                    continue
+            self.coefficients = chDict
+            self._updateMeta(self.coefficients)
+
     def all_out(self,buffer_size=4):
         '''
         (NEBULA LEGACY) Collect a data point for all inputs
@@ -411,6 +433,12 @@ class adc24:
         'single'    ->  Get a single value for each channel.
         '''
         try:
+            assert self.numchannels != 0
+        except AssertionError:
+            print(f'No channels assigned. Used addCh() to add channels to this device.')
+            pass
+
+        try:
             if reset == 0:
                 pass
             else:
@@ -447,6 +475,12 @@ class adc24:
         '''
         Print out the coefficients used to convert the raw ADC value to an output in analytical form (y = x1 * x + x0).
         '''
+        try:
+            assert self.numchannels != 0
+        except AssertionError:
+            print(f'No channels assigned. Used addCh() to add channels to this device.')
+            pass
+        
         print(f'Coefficients used for channels {self.channel}')
         for i in self.channel:
             
@@ -457,6 +491,12 @@ class adc24:
 
             print(f'Ch {i}:')
             print(f'\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])}\n')
+
+    def reset(self):
+        '''
+        Keep unit open but reset all channels
+        '''
+        self._updateMeta({})
 
     def shutdown(self):
         '''
