@@ -51,6 +51,7 @@ class adc24:
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
+        self.streaming = 0
 
         # Set output pointers and arrays to save time
         self.overflow = ctypes.c_int16(0)
@@ -184,12 +185,12 @@ class adc24:
         
         # Start sampling with BM_STREAM (2) method if not already started
         try:
+            if self.streaming == 1:
+                pass
+            else:
+                self._startStream(method)
+        except TypeError:
             self._startStream(method)
-            # if self.status["collectingSamples"] == 0:
-            #     self._startStream(method)
-        except KeyError:
-            # self._startStream(method)
-            pass
 
         # While loop to pause program while data is collected
         while hrdl.HRDLReady(self.chandle) == 0:
@@ -239,6 +240,8 @@ class adc24:
         # Start sampling with BM_WINDOW (1) method
         self.status["collectingSamples"] = hrdl.HRDLRun(self.chandle, self.buffer_size, method)
         assert_pico2000_ok(self.status["collectingSamples"])
+
+        self.streaming = 1
     
     def _stopStream(self):
         '''
@@ -251,6 +254,8 @@ class adc24:
         # Start sampling with BM_WINDOW (1) method
         self.status["stopCollectingSamples"] = hrdl.HRDLStop(self.chandle)
         assert_pico2000_ok(self.status["stopCollectingSamples"])
+
+        self.streaming = 0
 
     def all_out(self,buffer_size=4):
         '''
