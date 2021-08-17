@@ -151,12 +151,16 @@ class adc24:
 
         Used during adding of new class.
         '''
+        # Shut everything down to reassign channels without errors
         self.shutdown()
         
+        # Order channels
+        channel = {key: val for key, val in sorted(channel.items(), key = lambda ele: ele[0])}
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
 
+        # Restart everything - channels setup in _startup
         self._startup()
 
     def _setBuffer(self,newSize=1) -> None:
