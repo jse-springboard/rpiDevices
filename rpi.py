@@ -327,6 +327,8 @@ class adc24:
                 print(f'List passed. Channels {chDict} will output volts.')
                 for i in chDict:
                     self.coefficients[i] = [0,2.5]
+                
+                self._updateMeta(self.coefficients)
             else:
                 print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
@@ -436,7 +438,7 @@ class adc24:
             assert self.numchannels != 0
         except AssertionError:
             print(f'No channels assigned. Used addCh() to add channels to this device.')
-            pass
+            return
 
         try:
             if reset == 0:
@@ -480,7 +482,7 @@ class adc24:
         except AssertionError:
             print(f'No channels assigned. Used addCh() to add channels to this device.')
             pass
-        
+
         print(f'Coefficients used for channels {self.channel}')
         for i in self.channel:
             
