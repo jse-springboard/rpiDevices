@@ -420,7 +420,7 @@ class adc24:
 
         return values_out, times_out
 
-    def collect(self,method='block',nsamples=4,reset=0):
+    def collect(self,method='block',nsamples=1,reset=0):
         '''
         Collect data from ADC using specified method
         --------------------------------------------
