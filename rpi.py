@@ -383,6 +383,7 @@ class adc24:
             pass
         elif type(chDict) != dict:
             if type(chDict) == list:
+                self.rmCh(self.channel)
                 print(f'List passed. Channels {chDict} will output volts.')
                 for i in chDict:
                     self.coefficients[i] = [0,2.5]
@@ -392,6 +393,7 @@ class adc24:
                 print(f'Must pass a dictionary or list to add channels. Type "{type(chDict)}" has instead been passed.')
                 pass
         else:
+            self.rmCh(self.channel)
             for i in chDict:
                 # Check type and length of the input channel dictionary
                 try:
