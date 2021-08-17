@@ -129,9 +129,10 @@ class adc24:
             pass
         else:
             self.buffer_size = newSize
-            self.overflow = ctypes.c_int16(0)
-            self.values = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
-            self.times = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+        
+        self.overflow = ctypes.c_int16(0)
+        self.values = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
+        self.times = (ctypes.c_int32 * (self.buffer_size * self.numchannels))()
 
     def _getBlock(self,bufferRequest):
         '''
