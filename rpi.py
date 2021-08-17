@@ -155,7 +155,7 @@ class adc24:
         assert_pico2000_ok(self.status["getTimesAndValues"])
 
         self.status["stopCollectingUnit"] = hrdl.HRDLStop(self.chandle)
-        assert_pico2000_ok(self.status["closestopCollectingUnitUnit"])
+        assert_pico2000_ok(self.status["stopCollectingUnit"])
 
         return self.overflow, self.values, self.times
 
