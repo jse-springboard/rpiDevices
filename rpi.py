@@ -467,7 +467,7 @@ class adc24:
             x0 = self.coefficients[ch][0]
             x1 = self.coefficients[ch][1]
 
-            values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::nsamples]) * x1/self.maxAdc[ch].value) + x0)
+            values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::self.numchannels]) * x1/self.maxAdc[ch].value) + x0)
             times_out[self.channel[n]] = np.ctypeslib.as_array(times[:nsamples])/1000
 
         return values_out, times_out
