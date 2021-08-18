@@ -340,10 +340,16 @@ class adc24:
                 # Check type and length of the input channel dictionary
                 try:
                     assert type(chDict[i]) == list
-                    assert len(chDict[i]) == 2
+                    if len(chDict[i]) == 2:
+                        pass
+                    else:
+                        raise ValueError
+
                 except AssertionError:
                     print(f'ERROR: New channel {i} incompatible. Must pass a LIST with 2 elements, method instead received {type(chDict[i])}.\nCHANNEL {i} NOT ADDED.')
                     continue
+                except ValueError:
+                    print(f'WARNING: No coefficients passed on channel {i}.\nChannel {i} added as voltmeter.')
                 
                 # Add coefficients to channel
                 self.coefficients[i] = chDict[i]

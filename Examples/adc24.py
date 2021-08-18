@@ -88,5 +88,8 @@ def main():
     # Shutdown device
     adc.shutdown()
 
+    # Reset device using modCh command
+    adc.modCh({1:[10,0.25],2:[2,3],4:[]})
+
 if __name__ == '__main__':
     main()
