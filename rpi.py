@@ -64,6 +64,7 @@ class adc24:
         self.numchannels = len(self.channel)
         self.streaming = 0
         self.vrange=vrange
+        self.active = False
 
         # Set output pointers and arrays to save time
         self.overflow = ctypes.c_int16(0)
@@ -88,6 +89,7 @@ class adc24:
         self.status["openUnit"] = hrdl.HRDLOpenUnit()
         assert_pico2000_ok(self.status["openUnit"])
         self.chandle=self.status["openUnit"]
+        self.active = True
 
         # Set mains noise rejection
         # Reject 50 Hz mains noise by passing 0 as argument (<>0 for 60 Hz)
@@ -151,8 +153,9 @@ class adc24:
 
         Used during adding of new class.
         '''
-        # Shut everything down to reassign channels without errors
-        self.shutdown()
+        if self.active == True:
+            # Shut everything down to reassign channels without errors
+            self.shutdown()
         
         # Order channels
         channel = {key: val for key, val in sorted(channel.items(), key = lambda ele: ele[0])}
@@ -529,6 +532,7 @@ class adc24:
         # Close unit
         self.status["closeUnit"] = hrdl.HRDLCloseUnit(self.chandle)
         assert_pico2000_ok(self.status["closeUnit"])
+        self.active = False
 
 class vppr:
     '''
