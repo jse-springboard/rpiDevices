@@ -65,7 +65,7 @@ def main():
     adc = adc24(channel={1:[0,10],2:[-0.1,300]},vrange={1:0,2:1})
     
     # Add channel to device
-    adc.addCh([3,4])
+    adc.addCh([3,4],vrange={3:2,4:4})
 
     # Remove channel from device
     adc.rmCh([1])
