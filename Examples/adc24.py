@@ -54,13 +54,13 @@ def main():
     adc.printCoeffs()
 
     # Demonstrate block method
-    block_method()
+    block_method(adc)
 
     # Demonstrate window method
-    window_method()
+    window_method(adc)
 
     # Demonstrate stream method
-    stream_method()
+    stream_method(adc)
 
     # Reset device
     adc.reset()
