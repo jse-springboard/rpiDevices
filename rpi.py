@@ -44,13 +44,13 @@ class adc24:
     Use vrange as dict to specify voltage range for each channel. No entry for a declared channel will default to HRDL_2500_MV
     eg -> vrange = {1:0, 2:1} puts channel 1 in range +/-2500MV and channel 2 in range +/-1250MV.
 
-    HRDL_2500_MV (0) ±2500 mV ADC-20 and ADC-24
-    HRDL_1250_MV (1) ±1250 mV ADC-20 and ADC-24
-    HRDL_625_MV (2) ±625 mV ADC-24 only
-    HRDL_313_MV (3) ±312.5 mV ADC-24 only
-    HRDL_156_MV (4) ±156.25 mV ADC-24 only
-    HRDL_78_MV (5) ±78.125 mV ADC-24 only
-    HRDL_39_MV (6) ±39.0625 mV
+    HRDL_2500_MV (0) ±2500 mV ADC-20 and ADC-24 \n
+    HRDL_1250_MV (1) ±1250 mV ADC-20 and ADC-24 \n
+    HRDL_625_MV (2) ±625 mV ADC-24 only \n
+    HRDL_313_MV (3) ±312.5 mV ADC-24 only \n
+    HRDL_156_MV (4) ±156.25 mV ADC-24 only \n
+    HRDL_78_MV (5) ±78.125 mV ADC-24 only \n
+    HRDL_39_MV (6) ±39.0625 mV ADC-24 only \n
 
     '''
 
@@ -65,6 +65,15 @@ class adc24:
         self.streaming = 0
         self.vrange=vrange
         self.active = False
+        self.vrOptions = {
+            0:2.5,
+            1:1.25,
+            2:0.625,
+            3:0.3125,
+            4:0.15625,
+            5:0.078125,
+            6:0.0390625
+        }
 
         # Set output pointers and arrays to save time
         self.overflow = ctypes.c_int16(0)
@@ -332,7 +341,15 @@ class adc24:
             if type(chDict) == list:
                 print(f'WARNING: List passed. Channels {chDict} will output volts.')
                 for i in chDict:
-                    self.coefficients[i] = [0,2.5]
+                    # If vrange has been passed, add details to vvrange variable
+                    if not vrange:
+                        if i in vrange:
+                            self.vrange[i] = vrange[i]
+                            self.coefficients[i] = [0,self.vrOptions[self.vrange[i]]]
+                        else:
+                            self.coefficients[i] = [0,2.5]
+                    else:
+                        self.coefficients[i] = [0,2.5]
                 
                 self._updateMeta(self.coefficients)
             else:
@@ -353,6 +370,14 @@ class adc24:
                     continue
                 except ValueError:
                     print(f'WARNING: No coefficients passed on channel {i}.\nChannel {i} added as voltmeter.')
+                    if not vrange:
+                        if i in vrange:
+                            self.vrange[i] = vrange[i]
+                            self.coefficients[i] = [0,self.vrOptions[self.vrange[i]]]
+                        else:
+                            self.coefficients[i] = [0,2.5]
+                    else:
+                        self.coefficients[i] = [0,2.5]
                 
                 # Add coefficients to channel
                 self.coefficients[i] = chDict[i]
@@ -510,7 +535,7 @@ class adc24:
             else:
                 sign = '- '
 
-            print(f'Ch {i}\t|  y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])} \t|  Voltage range = {[key for key, val in hrdl.HRDL_VOLTAGERANGE.items() if val == self.vrange[i]]}')
+            print(f'Channel {i}  \t|  y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])} \t|  Voltage range = {[key for key, val in hrdl.HRDL_VOLTAGERANGE.items() if val == self.vrange[i]]}')
 
     def reset(self):
         '''
