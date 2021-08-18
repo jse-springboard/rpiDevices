@@ -476,9 +476,14 @@ class adc24:
         'single'    ->  Get a single value for each channel.
         '''
         try:
+            if self.active == False:
+                raise ValueError
             assert self.numchannels != 0
         except AssertionError:
-            print(f'No channels assigned. Used addCh() to add channels to this device.')
+            print(f'WARNING: No channels assigned. Used addCh() to add channels to this device.')
+            return
+        except ValueError:
+            print(f'ERROR: Device inactive. Use wake() to activate device.')
             return
 
         try:
