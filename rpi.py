@@ -510,7 +510,7 @@ class adc24:
             else:
                 sign = '- '
 
-            print(f'Ch {i}\t|\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])} \t| Voltage range = {[key for key, val in hrdl.HRDL_VOLTAGERANGE.items if val == self.vrange[i]]}')
+            print(f'Ch {i}\t|\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])} \t| Voltage range = {[key for key, val in hrdl.HRDL_VOLTAGERANGE.items() if val == self.vrange[i]]}')
 
     def reset(self):
         '''
