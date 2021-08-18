@@ -502,7 +502,7 @@ class adc24:
             print(f'No channels assigned. Used addCh() to add channels to this device.')
             pass
 
-        print(f'Coefficients used for channels {self.channel}')
+        print(f'Coefficients and voltage ranges used for channels {self.channel}')
         for i in self.channel:
             
             if self.coefficients[i][0] >= 0:
@@ -510,8 +510,7 @@ class adc24:
             else:
                 sign = '- '
 
-            print(f'Ch {i}:')
-            print(f'\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])}\n')
+            print(f'Ch {i}\t|\t y = {self.coefficients[i][1]} * x {sign}{abs(self.coefficients[i][0])} \t| Voltage range = {[key for key, val in hrdl.HRDL_VOLTAGERANGE.items if val == self.vrange[i]]}')
 
     def reset(self):
         '''
