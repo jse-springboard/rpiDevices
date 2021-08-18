@@ -369,15 +369,18 @@ class adc24:
                     print(f'ERROR: New channel {i} incompatible. Must pass a LIST with 2 elements, method instead received {type(chDict[i])}.\nCHANNEL {i} NOT ADDED.')
                     continue
                 except ValueError:
-                    print(f'WARNING: No coefficients passed on channel {i}.\nChannel {i} added as voltmeter.')
+                    print(f'WARNING: No coefficients passed on channel {i} -> added as voltmeter.')
                     if not vrange:
                         if i in vrange:
                             self.vrange[i] = vrange[i]
                             self.coefficients[i] = [0,self.vrOptions[self.vrange[i]]]
+                            continue
                         else:
                             self.coefficients[i] = [0,2.5]
+                            continue
                     else:
                         self.coefficients[i] = [0,2.5]
+                        continue
                 
                 # Add coefficients to channel
                 self.coefficients[i] = chDict[i]

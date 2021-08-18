@@ -72,6 +72,7 @@ def main():
 
     # Print coefficients on each channel
     adc.printCoeffs()
+    print('')
 
     # Demonstrate block method
     block_method(adc)
