@@ -1,13 +1,18 @@
 from rpiDevices.rpi import adc24
+import time
 
 def block_method(adc):
     '''
     Demonstration of block method.
     '''
-    print(f'Data from block method:')
-    print(f'-----------------------')
+    t0 = time.time()
+    
     # Output data from all input channels.
     data_output, data_times = adc.collect(2, method='block')
+
+    drop = time.time() - t0
+    print(f'Data from block method (t = {drop:.3f} s):')
+    print(f'------------------------------------------')
 
     for i in adc.channel:
         print(f'Channel {i}  \t|  Time: {data_times[i]}  \t|  Data: {data_output[i]}')
@@ -17,11 +22,16 @@ def window_method(adc):
     '''
     Demonstration of window method.
     '''
-    print(f'Data from window method:')
-    print(f'------------------------')
+    t0 = time.time()
     # Output data from all input channels. Stop stream after.
     data_output, data_times = adc.collect(2, method='window')
+
+    drop = time.time() - t0
+    
     adc.stop()
+
+    print(f'Data from window method (t = {drop:.3f} s):')
+    print(f'-------------------------------------------')
 
     for i in adc.channel:
         print(f'Channel {i}  \t|  Time: {data_times[i]}  \t|  Data: {data_output[i]}')
@@ -31,11 +41,16 @@ def stream_method(adc):
     '''
     Demonstration of stream method.
     '''
-    print(f'Data from stream method:')
-    print(f'------------------------')
+    t0 = time.time()
+    
     # Output data from all input channels. Stop stream after.
     data_output, data_times = adc.collect(2, method='stream')
+    drop = time.time() - t0
+    
     adc.stop()
+    
+    print(f'Data from stream method (t = {drop:.3f} s):')
+    print(f'-------------------------------------------')
 
     for i in adc.channel:
         print(f'Channel {i}  \t|  Time: {data_times[i]}  \t|  Data: {data_output[i]}')
