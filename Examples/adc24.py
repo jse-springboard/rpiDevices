@@ -5,6 +5,7 @@ def block_method(adc):
     Demonstration of block method.
     '''
     print(f'Data from block method:')
+    print(f'-----------------------')
     # Output data from all input channels.
     data_output, data_times = adc.collect(2, method='block')
 
@@ -16,6 +17,8 @@ def window_method(adc):
     '''
     Demonstration of window method.
     '''
+    print(f'Data from window method:')
+    print(f'------------------------')
     # Output data from all input channels. Stop stream after.
     data_output, data_times = adc.collect(2, method='window')
     adc.stop()
@@ -28,6 +31,8 @@ def stream_method(adc):
     '''
     Demonstration of stream method.
     '''
+    print(f'Data from stream method:')
+    print(f'------------------------')
     # Output data from all input channels. Stop stream after.
     data_output, data_times = adc.collect(2, method='stream')
     adc.stop()
