@@ -542,6 +542,15 @@ class adc24:
         Keep unit open but reset all channels
         '''
         self._updateMeta({})
+    
+    def wake(self):
+        '''
+        Open a dormant device
+        '''
+        if self.active == False:
+            self._startup()
+        else:
+            print(f'WARNING: Device already awake.')
 
     def shutdown(self):
         '''
