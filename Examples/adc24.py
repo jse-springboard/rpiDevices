@@ -62,7 +62,7 @@ def main():
     '''
     # Start adc instance and initiate system
     # Argument to adc24 class call specifies the channel number and the conversion coefficients [x0, x1] for the ADC output ( y = (ADC_out / ADC_max)*x1 + x0 )
-    adc = adc24(channel={1:[0,10],2:[-0.1,300]})
+    adc = adc24(channel={1:[0,10],2:[-0.1,300]},vrange={1:0,2:1})
     
     # Add channel to device
     adc.addCh([3,4])
