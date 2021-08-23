@@ -25,6 +25,7 @@ import adafruit_vl6180x
 from picosdk.usbtc08 import usbtc08
 from picosdk.picohrdl import picohrdl as hrdl
 from picosdk.functions import assert_pico2000_ok
+from picosdk.errors import PicoSDKCtypesError as perr
 import RPi.GPIO as gpio
 import rpiDevices
 
@@ -94,12 +95,16 @@ class adc24:
 
         Initially check to see if an existing chandle was passed.
         '''
-        # Open unit
-        self.status["openUnit"] = hrdl.HRDLOpenUnit()
-        assert_pico2000_ok(self.status["openUnit"])
-        self.chandle=self.status["openUnit"]
-        self.active = True
-
+        try:
+            # Open unit
+            self.status["openUnit"] = hrdl.HRDLOpenUnit()
+            assert_pico2000_ok(self.status["openUnit"])
+            self.chandle=self.status["openUnit"]
+            self.active = True
+        except perr:
+            print(f'ERROR: Unable to connect to the device. Ensure device is connected and try again.')
+            return False
+            
         # Set mains noise rejection
         # Reject 50 Hz mains noise by passing 0 as argument (<>0 for 60 Hz)
         self.status["mainsRejection"] = hrdl.HRDLSetMains(self.chandle, 0)
