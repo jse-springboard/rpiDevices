@@ -60,6 +60,15 @@ class adc24:
         # If channel is started using the handler, use chandle that has already been assigned.
         self.status = {}
         self.buffer_size = buffer_size
+
+        try:
+            if channel == 'nebula':
+                channel={2:[0,21],15:[-0.105,2.5*32]}
+            elif type(channel) == dict:
+                pass
+        except TypeError:
+            pass
+        
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
