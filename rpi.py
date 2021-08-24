@@ -15,6 +15,7 @@ PCE_Loadcell - PCE handheld loadcell
 '''
 
 import numpy as np
+import pandas as pd
 import os, subprocess, serial, re, ctypes
 from time import sleep
 
@@ -68,7 +69,7 @@ class adc24:
                 pass
         except TypeError:
             pass
-        
+
         self.channel = list(channel.keys()) # Set input channel here
         self.coefficients = channel
         self.numchannels = len(self.channel)
@@ -210,8 +211,14 @@ class adc24:
         Function using ADC block/window method (0 or 1) to extract data
         ---------------------------------------------------
 
-        Number of samples to take in the block/window
-        buffer_size -> 4
+        Number of samples to take in the block/window\n
+        buffer_size -> 4\n\n
+
+        Optionally output data from block as a dataframe with the format:
+        Time | Ch1 | Ch2 | ...
+        ----------------------
+             |     |     |    
+             |     |     |
         '''
         # Check and set buffer size
         self._setBuffer(bufferRequest)
@@ -339,6 +346,21 @@ class adc24:
         '''
         self._stopStream()
         self._setBuffer()
+
+    def _dataframe(self,data,times):
+        '''
+        Convert set of times and data into a pandas dataframe
+        -----------------------------------------------------
+        '''
+        df_dict = {}
+        df_dict['Time'] = list(times.items())[0][1]
+
+        for key, val in data:
+            df_dict[key] = val
+        
+        df = pd.DataFrame(df_dict,index='Time')
+
+        return df
 
     def addCh(self,chDict={},vrange={}):
         '''
@@ -476,7 +498,7 @@ class adc24:
 
         return values_out, times_out
 
-    def collect(self,nsamples=1,method='block',reset=0):
+    def collect(self,nsamples=1,method='block',reset=0,dataframe=False):
         '''
         Collect data from ADC using specified method
         --------------------------------------------
@@ -531,7 +553,11 @@ class adc24:
             values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::self.numchannels]) * x1/self.maxAdc[ch].value) + x0)
             times_out[self.channel[n]] = np.ctypeslib.as_array(times[:nsamples])/1000
 
-        return values_out, times_out
+        if dataframe == True:
+            df = self._dataframe(values_out, times_out)
+            return df
+        else:    
+            return values_out, times_out
 
     def stop(self):
         '''
