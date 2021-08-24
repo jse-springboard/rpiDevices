@@ -358,7 +358,8 @@ class adc24:
         for key in data:
             df_dict[key] = data[key]
         
-        df = pd.DataFrame(df_dict,index='Time')
+        df = pd.DataFrame(df_dict)
+        df.set_index('Time')
 
         return df
 
