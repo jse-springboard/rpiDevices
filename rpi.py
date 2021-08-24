@@ -609,11 +609,14 @@ class adc24:
             self._stopStream()
         except:
             pass
-
-        # Close unit
-        self.status["closeUnit"] = hrdl.HRDLCloseUnit(self.chandle)
-        assert_pico2000_ok(self.status["closeUnit"])
-        self.active = False
+        
+        if self.active == True:
+            # Close unit
+            self.status["closeUnit"] = hrdl.HRDLCloseUnit(self.chandle)
+            assert_pico2000_ok(self.status["closeUnit"])
+            self.active = False
+        else:
+            print(f'WARNING: Device already shutdown.')
 
 class vppr:
     '''
