@@ -355,8 +355,8 @@ class adc24:
         df_dict = {}
         df_dict['Time'] = list(times.items())[0][1]
 
-        for key, val in data:
-            df_dict[key] = val
+        for key in data:
+            df_dict[key] = data[key]
         
         df = pd.DataFrame(df_dict,index='Time')
 
