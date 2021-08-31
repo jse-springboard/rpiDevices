@@ -111,9 +111,9 @@ class adc24:
             assert_pico2000_ok(self.status["openUnit"])
             self.chandle=self.status["openUnit"]
             self.active = True
-        except perr:
+        except perr as a:
             print(f'ERROR: Unable to connect to the device. Ensure device is connected and try again.')
-            return False
+            raise a
             
         # Set mains noise rejection
         # Reject 50 Hz mains noise by passing 0 as argument (<>0 for 60 Hz)
