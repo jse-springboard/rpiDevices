@@ -464,7 +464,7 @@ class adc24:
             self.rmCh(self.channel,quiet=1)
             self.addCh(chDict=chDict,vrange=vrange)
 
-    def all_out(self,buffer_size=4):
+    def all_out(self,buffer_size=2):
         '''
         (NEBULA LEGACY) Collect a data point for all inputs
         ---------------------------------------------------
