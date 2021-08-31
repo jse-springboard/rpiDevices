@@ -215,12 +215,6 @@ class adc24:
 
         Number of samples to take in the block/window\n
         buffer_size -> 4\n\n
-
-        Optionally output data from block as a dataframe with the format:
-        Time | Ch1 | Ch2 | ...
-        ----------------------
-             |     |     |    
-             |     |     |
         '''
         # Check and set buffer size
         self._setBuffer(bufferRequest)
@@ -240,9 +234,6 @@ class adc24:
         '''
         self.status["getTimesAndValues"] = hrdl.HRDLGetTimesAndValues(self.chandle, ctypes.byref(self.times), ctypes.byref(self.values), ctypes.byref(self.overflow), self.buffer_size)
         assert_pico2000_ok(self.status["getTimesAndValues"])
-
-        # self.status["stopCollectingUnit"] = hrdl.HRDLStop(self.chandle)
-        # assert_pico2000_ok(self.status["stopCollectingUnit"])
 
         return self.overflow, self.values, self.times
 
@@ -480,7 +471,7 @@ class adc24:
         '''
 
         # Return arrays of time, pressure and flow rate
-        overflow, values, times = self._getBlock(buffer_size=buffer_size)
+        overflow, values, times = self._getBlock(bufferRequest=buffer_size)
         
         '''
         ## Convert the output data from a ctype array to a real value. 
@@ -511,7 +502,14 @@ class adc24:
         'stream'    ->  Collect continuous stream of data. First call begins stream.\n
          \n
         [NOT YET SUPPORTED] \n
-        'single'    ->  Get a single value for each channel.
+        'single'    ->  Get a single value for each channel.\n \n 
+
+        
+        Optionally output data from block as a dataframe with the format:
+        Time | Ch1 | Ch2 | ...
+        ----------------------
+             |     |     |    
+             |     |     |
         '''
         try:
             if self.active == False:
