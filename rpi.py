@@ -112,7 +112,9 @@ class adc24:
             self.chandle=self.status["openUnit"]
             self.active = True
         except perr as a:
+            print(f'#################################################################################')
             print(f'ERROR: Unable to connect to the device. Ensure device is connected and try again.')
+            print(f'#################################################################################\n')
             raise a
             
         # Set mains noise rejection
