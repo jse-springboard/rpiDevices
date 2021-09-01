@@ -940,7 +940,6 @@ class imu:
         self.last_val = 0xFFFF
 
     def temperature(self):
-        global last_val  # pylint: disable=global-statement
         result = self.sensor.temperature
 
         if abs(result - self.last_val) == 128:
@@ -948,7 +947,7 @@ class imu:
             if abs(result - self.last_val) == 128:
                 return 0b00111111 & result
 
-        last_val = result
+        self.last_val = result
 
         return result
 
@@ -963,7 +962,7 @@ class imu:
                             sign[i] = '+'
                         else:
                             sign[i] = '-'
-                    print(f"Euler angle: ({sign[0]}{abs(out[0]):06.2f}, {sign[1]}{abs(out[1]):06.2f}, {sign[2]}{abs(out[2]):06.2f})                                    ",end='\r')
+                    print(f"Euler angle: ({sign[0]}{abs(out[0]):06.2f}, {sign[1]}{abs(out[1]):06.2f}, {sign[2]}{abs(out[2]):06.2f})                         ",end='\r')
                 except TypeError:
                     pass
         except KeyboardInterrupt:
