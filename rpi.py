@@ -928,6 +928,21 @@ class imu:
     '''
     Class for the handling of the BNO055 9-DOF IMU with RPi
     -------------------------------------------------------
+    \n
+    "Temperature: {} degrees C".format(sensor.temperature)\n
+    "Temperature: {} degrees C".format(temperature())\n
+
+    "Accelerometer (m/s^2): {}".format(sensor.acceleration)\n
+
+    "Magnetometer (microteslas): {}".format(sensor.magnetic)\n
+
+    "Gyroscope (rad/sec): {}".format(sensor.gyro)\n
+
+    "Quaternion: {}".format(sensor.quaternion)\n
+
+    "Linear acceleration (m/s^2): {}".format(sensor.linear_acceleration)\n
+
+    "Gravity (m/s^2): {}".format(sensor.gravity)\n\n
 
     UPDATES REQUIRED:
     - Support for IMU functions as outputs
