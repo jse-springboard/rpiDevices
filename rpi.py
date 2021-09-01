@@ -966,18 +966,28 @@ class imu:
 
         return result
 
-    def printEuler(self):
+    def print(self,val='euler'):
+        dict = {
+            'euler':self.sensor.euler,
+            'acceleration':self.sensor.acceleration,
+            'gyro':self.sensor.gyro,
+            'magnetic':self.sensor.magnetic,
+            'gravity':self.sensor.gravity,
+            'quaternion':self.sensor.quaternion,
+            'linear acceleration':self.sensor.linear_acceleration,
+            'temperature':self.sensor.temperature()
+        }
         try:
             while True:
                 sign = {}
-                out = self.sensor.euler
+                out = dict[val]
                 try:
                     for i in range(3):
                         if out[i] > 0:
                             sign[i] = '+'
                         else:
                             sign[i] = '-'
-                    print(f"Euler angle: ({sign[0]}{abs(out[0]):06.2f}, {sign[1]}{abs(out[1]):06.2f}, {sign[2]}{abs(out[2]):06.2f})                         ",end='\r')
+                    print(f"{val}:  ({sign[0]}{abs(out[0]):06.2f}, {sign[1]}{abs(out[1]):06.2f}, {sign[2]}{abs(out[2]):06.2f})                         ",end='\r')
                 except TypeError:
                     pass
         except KeyboardInterrupt:
