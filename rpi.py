@@ -21,7 +21,7 @@ from time import sleep
 
 import board
 import busio
-# import Adafruit_BNO055 as adafruit_bno055
+import adafruit_bno055
 import adafruit_vl6180x
 from picosdk.usbtc08 import usbtc08
 from picosdk.picohrdl import picohrdl as hrdl
@@ -924,30 +924,47 @@ class PCE_Loadcell:
         
         return _out
 
-# class imu:
-#     '''
-#     Class for the handling of the BNO055 9-DOF IMU with RPi
-#     -------------------------------------------------------
+class imu:
+    '''
+    Class for the handling of the BNO055 9-DOF IMU with RPi
+    -------------------------------------------------------
 
-#     UPDATES REQUIRED:
-#     - Support for IMU functions as outputs
-#     - KARMAN filter for inertial navigation?
-#     '''
+    UPDATES REQUIRED:
+    - Support for IMU functions as outputs
+    - KARMAN filter for inertial navigation?
+    '''
 
-#     def __init__(self):
-#         self.i2c = board.I2C()
-#         self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
-#         self.last_val = 0xFFFF
+    def __init__(self):
+        self.i2c = board.I2C()
+        self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+        self.last_val = 0xFFFF
 
-#     def temperature(self):
-#         global last_val  # pylint: disable=global-statement
-#         result = self.sensor.temperature
+    def temperature(self):
+        global last_val  # pylint: disable=global-statement
+        result = self.sensor.temperature
 
-#         if abs(result - self.last_val) == 128:
-#             result = self.sensor.temperature
-#             if abs(result - self.last_val) == 128:
-#                 return 0b00111111 & result
+        if abs(result - self.last_val) == 128:
+            result = self.sensor.temperature
+            if abs(result - self.last_val) == 128:
+                return 0b00111111 & result
 
-#         last_val = result
+        last_val = result
 
-#         return result
+        return result
+
+    def printEuler(self):
+        try:
+            while True:
+                sign = {}
+                out = self.sensor.euler
+                try:
+                    for i in range(3):
+                        if out[i] > 0:
+                            sign[i] = '+'
+                        else:
+                            sign[i] = '-'
+                    print(f"Euler angle: ({sign[0]}{abs(out[0]):06.2f}, {sign[1]}{abs(out[1]):06.2f}, {sign[2]}{abs(out[2]):06.2f})                                    ",end='\r')
+                except TypeError:
+                    pass
+        except KeyboardInterrupt:
+            print(f'\n------------------------------------------- \n Closing program (no save) \n')
