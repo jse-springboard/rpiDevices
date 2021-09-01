@@ -954,21 +954,7 @@ class imu:
         self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
         self.last_val = 0xFFFF
 
-    def temperature(self):
-        result = self.sensor.temperature
-
-        if abs(result - self.last_val) == 128:
-            result = self.sensor.temperature
-            if abs(result - self.last_val) == 128:
-                return 0b00111111 & result
-
-        self.last_val = result
-
-        return result
-
-    def print(self,val='euler'):
-
-        dict = {
+        self.functions = {
             'euler':lambda self: self.sensor.euler,
             'acceleration':lambda self: self.sensor.acceleration,
             'gyro':lambda self: self.sensor.gyro,
@@ -979,7 +965,18 @@ class imu:
             'temperature':lambda self: self.sensor.temperature,
         }
 
-        func = dict[val]
+        self.euler = lambda: self.sensor.euler
+        self.acceleration = lambda: self.sensor.acceleration
+        self.gyro = lambda: self.sensor.gyro
+        self.magnetic = lambda: self.sensor.magnetic
+        self.gravity = lambda: self.sensor.gravity
+        self.quarternion = lambda: self.sensor.quaternion
+        self.linear_acceleration = lambda: self.sensor.linear_acceleration
+        self.temperature = lambda: self.sensor.temperature
+
+    def print(self,val='euler'):
+
+        func = self.functions[val]
         
         try:
             while True:
