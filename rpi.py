@@ -975,7 +975,7 @@ class imu:
             'gravity':self.sensor.gravity,
             'quaternion':self.sensor.quaternion,
             'linear acceleration':self.sensor.linear_acceleration,
-            'temperature':self.sensor.temperature()
+            'temperature':self.sensor.temperature
         }
         try:
             while True:
