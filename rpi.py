@@ -984,7 +984,7 @@ class imu:
         try:
             while True:
                 sign = {}
-                out = func
+                out = func()
                 try:
                     for i in range(3):
                         if out[i] > 0:
