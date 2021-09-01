@@ -967,20 +967,24 @@ class imu:
         return result
 
     def print(self,val='euler'):
+
         dict = {
-            'euler':self.sensor.euler,
-            'acceleration':self.sensor.acceleration,
-            'gyro':self.sensor.gyro,
-            'magnetic':self.sensor.magnetic,
-            'gravity':self.sensor.gravity,
-            'quaternion':self.sensor.quaternion,
-            'linear acceleration':self.sensor.linear_acceleration,
-            'temperature':self.sensor.temperature
+            'euler':lambda self: self.sensor.euler,
+            'acceleration':lambda self: self.sensor.acceleration,
+            'gyro':lambda self: self.sensor.gyro,
+            'magnetic':lambda self: self.sensor.magnetic,
+            'gravity':lambda self: self.sensor.gravity,
+            'quaternion':lambda self: self.sensor.quaternion,
+            'linear acceleration':lambda self: self.sensor.linear_acceleration,
+            'temperature':lambda self: self.sensor.temperature,
         }
+
+        func = dict[val]
+        
         try:
             while True:
                 sign = {}
-                out = dict[val]
+                out = func
                 try:
                     for i in range(3):
                         if out[i] > 0:
