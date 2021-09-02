@@ -29,7 +29,7 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
         // Turn relay on
         void enable(void) {
             digitalWrite(relay::relayPin,HIGH);
-            realy::state = true;
+            relay::state = true;
         }
 
         // Turn relay off
