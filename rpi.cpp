@@ -65,36 +65,42 @@ void setup() {
     relay relayCh3 = {relayCh3Pin, 3};
 };
 
-void loop() {
-    switch (argc) {
-        case 1:
-            cout<<"Select relay channel to toggle: "<<endl;
-            cin>>x;
+void loop(relay relayCh1, relay relayCh2, relay relayCh3) {
+    // switch (argc) {
+    //     case 1:
+    //         cout<<"Select relay channel to toggle: "<<endl;
+    //         cin>>x;
 
-            switch (x) {
-                case 1:
-                    relayCh1.toggle();
-                    break;
+    //         switch (x) {
+    //             case 1:
+    //                 relayCh1.toggle();
+    //                 break;
 
-                case 2:
-                    relayCh2.toggle();
-                    break;
+    //             case 2:
+    //                 relayCh2.toggle();
+    //                 break;
 
-                case 3:
-                    relayCh3.toggle();
-                    break;
+    //             case 3:
+    //                 relayCh3.toggle();
+    //                 break;
                 
-                default:
-                    break;
-            }
+    //             default:
+    //                 break;
+    //         }
         
-        case 2:
-            cin>>key;
+    //     case 2:
+    //         cin>>key;
 
-            switch (key) {
-                case 
-            }
-    }
+    //         switch (key) {
+    //             case 
+    //         }
+    // }
+    relayCh1.toggle();
+    delay(timeDelay);
+    relayCh2.toggle();
+    delay(timeDelay);
+    relayCh3.toggle();
+    delay(timeDelay);
 };
 
 int main(int argc, char* argv[]) {
