@@ -19,24 +19,24 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
 
     public:
         // Relay state
-        bool state;
+        static bool state;
 
         // Pin number for the relay
-        int relayPin;
+        static int relayPin;
 
         // Store channel number as an int
-        int channelNum;
+        static int channelNum;
 
         
 
         // Turn relay on
-        void enable (void);
+        static void enable (void);
 
         // Turn relay off
-        void disable(void);
+        static void disable(void);
 
         // Toggle relay state
-        void toggle(void);
+        static void toggle(void);
 };
 
 // Turn relay on
