@@ -52,6 +52,10 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
         }
 };
 
+relay relayCh1 = {relayCh1Pin, 1};
+relay relayCh2 = {relayCh2Pin, 2};
+relay relayCh3 = {relayCh3Pin, 3};
+
 //--------------------------------------- SETUP -------------------
 
 void setup() {
@@ -59,10 +63,6 @@ void setup() {
     pinMode(relayCh2Pin,OUTPUT);
     pinMode(relayCh3Pin,OUTPUT);
     cout<<"Relay channels engaged"<<endl;
-
-    relay relayCh1 = {relayCh1Pin, 1};
-    relay relayCh2 = {relayCh2Pin, 2};
-    relay relayCh3 = {relayCh3Pin, 3};
 };
 
 void loop(relay relayCh1, relay relayCh2, relay relayCh3) {
