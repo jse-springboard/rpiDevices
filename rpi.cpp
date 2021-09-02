@@ -39,11 +39,6 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
         }
 };
 
-enum action {
-    RELAY,
-    LED,
-    GPS
-};
 //--------------------------------------- SETUP -------------------
 
 void setup() {
@@ -53,12 +48,8 @@ void setup() {
     cout<<"Relay channels engaged"<<endl;
 
     relay relayCh1 = {relayCh1Pin, 1};
-
-    relay relayCh2;
-    relayCh2.relayPin = relayCh2Pin;
-
-    relay relayCh3;
-    relayCh3.relayPin = relayCh3Pin;
+    relay relayCh2 = {relayCh2Pin, 2};
+    relay relayCh3 = {relayCh3Pin, 3};
 };
 
 void loop() {
