@@ -8,7 +8,7 @@ int relayCh1Pin = 29;
 int relayCh2Pin = 28;
 int relayCh3Pin = 25;
 
-int timeDelay = 50;
+int timeDelay = 10;
 
 void setup() {
     pinMode(relayCh1Pin,OUTPUT);
