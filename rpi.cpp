@@ -16,12 +16,11 @@ int timeDelay = 200;
 //------------------------- CLASS DEFINITIONS ----------------------
 
 class relay { // Class to use 3 channel RPi Relay Board HAT.
-    
-    private:
+
+    public:
         // Relay state
         bool state;
 
-    public:
         // Pin number for the relay
         int relayPin;
 
