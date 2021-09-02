@@ -57,12 +57,10 @@ void relay::toggle (void) {
         case true:
             cout<<"DISABLING"<<endl;
             disable();
-            break;
 
         case false:
             cout<<"ENABLING"<<endl;
             enable();
-            break;
     }
 };
 
