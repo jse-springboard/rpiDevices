@@ -103,7 +103,7 @@ void loop(relay relayCh1, relay relayCh2, relay relayCh3) {
     delay(timeDelay);
 };
 
-int main(int argc, char* argv[],relay relayCh1, relay relayCh2, relay relayCh3) {
+int main(relay relayCh1, relay relayCh2, relay relayCh3, int argc, char* argv[]) {
     if (wiringPiSetup() < 0) {
         cout<<"Setup failed"<<endl;
         return 1;
