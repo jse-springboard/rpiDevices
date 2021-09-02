@@ -33,12 +33,17 @@ void loop() {
 	delay(timeDelay);
 }
 
-int main(void) {
+int main(int argc, char** argv) {
     if (wiringPiSetup() < 0) {
         cout<<"Setup failed"<<endl;
         return 1;
     }
     setup();
+
+    switch (argc) {
+        case 1:
+            cout<<"Select relay to toggle: "<<endl;
+            cin>>x
     while(1){
         loop();
     }

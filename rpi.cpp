@@ -37,6 +37,19 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
             digitalWrite(relayPin,LOW);
             state = false;
         }
+
+        // Toggle relay state
+        void toggle(void) {
+            switch (state) {
+                case true:
+                    disable();
+                    break;
+
+                case false:
+                    enable();
+                    break;
+            }
+        }
 };
 
 //--------------------------------------- SETUP -------------------
@@ -53,21 +66,38 @@ void setup() {
 };
 
 void loop() {
-    digitalWrite(relayCh1Pin,HIGH);
-	delay(timeDelay);
-	digitalWrite(relayCh2Pin,HIGH);
-	delay(timeDelay);
-    digitalWrite(relayCh3Pin,HIGH);
-	delay(timeDelay);
-	digitalWrite(relayCh1Pin,LOW);
-	delay(timeDelay);
-	digitalWrite(relayCh2Pin,LOW);
-	delay(timeDelay);
-    digitalWrite(relayCh3Pin,LOW);
-	delay(timeDelay);
+    switch (argc) {
+        case 1:
+            cout<<"Select relay channel to toggle: "<<endl;
+            cin>>x;
+
+            switch (x) {
+                case 1:
+                    relayCh1.toggle();
+                    break;
+
+                case 2:
+                    relayCh2.toggle();
+                    break;
+
+                case 3:
+                    relayCh3.toggle();
+                    break;
+                
+                default:
+                    break;
+            }
+        
+        case 2:
+            cin>>key;
+
+            switch (key) {
+                case 
+            }
+    }
 };
 
-int main(void) {
+int main(int argc, char* argv[]) {
     if (wiringPiSetup() < 0) {
         cout<<"Setup failed"<<endl;
         return 1;
