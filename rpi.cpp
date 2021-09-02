@@ -16,47 +16,60 @@ int timeDelay = 200;
 //------------------------- CLASS DEFINITIONS ----------------------
 
 class relay { // Class to use 3 channel RPi Relay Board HAT.
+    
+    private:
+        // Relay state
+        bool state;
+
     public:
         // Pin number for the relay
-        const int relayPin;
+        int relayPin;
 
         // Store channel number as an int
-        const int channelNum;
+        int channelNum;
 
-        // Relay state
-        bool state = false;
+        
 
         // Turn relay on
-        void enable(void) {
-            digitalWrite(relayPin,HIGH);
-            state = true;
-        }
+        void enable (void);
 
         // Turn relay off
-        void disable(void) {
-            digitalWrite(relayPin,LOW);
-            state = false;
-        }
+        void disable(void);
 
         // Toggle relay state
-        void toggle(void) {
-            switch (state) {
-                case true:
-                    cout<<"DISABLING"<<endl;
-                    disable();
-                    break;
-
-                case false:
-                    cout<<"ENABLING"<<endl;
-                    enable();
-                    break;
-            }
-        }
+        void toggle(void);
 };
 
-relay relayCh1 = {relayCh1Pin, 1};
-relay relayCh2 = {relayCh2Pin, 2};
-relay relayCh3 = {relayCh3Pin, 3};
+// Turn relay on
+void relay::enable (void) {
+    digitalWrite(relayPin,HIGH);
+    state = true;
+}
+
+// Turn relay off
+void relay::disable (void) {
+    digitalWrite(relayPin,LOW);
+    state = false;
+}
+
+// Toggle relay state
+void relay::toggle (void) {
+    switch (state) {
+        case true:
+            cout<<"DISABLING"<<endl;
+            disable();
+            break;
+
+        case false:
+            cout<<"ENABLING"<<endl;
+            enable();
+            break;
+    }
+}
+
+relay relayCh1 = {false, relayCh1Pin, 1};
+relay relayCh2 = {false, relayCh2Pin, 2};
+relay relayCh3 = {false, relayCh3Pin, 3};
 
 //--------------------------------------- SETUP -------------------
 
