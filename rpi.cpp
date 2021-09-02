@@ -52,8 +52,7 @@ void setup() {
     pinMode(relayCh3Pin,OUTPUT);
     cout<<"Relay channels engaged"<<endl;
 
-    relay relayCh1;
-    relayCh1.relayPin = relayCh1Pin;
+    relay relayCh1 = {relayCh1Pin, 1};
 
     relay relayCh2;
     relayCh2.relayPin = relayCh2Pin;
