@@ -16,44 +16,57 @@ int timeDelay = 200;
 //------------------------- CLASS DEFINITIONS ----------------------
 
 class relay { // Class to use 3 channel RPi Relay Board HAT.
-
-    public:
-        // Relay state
-        bool state;
-
-        // Pin number for the relay
-        int relayPin;
-
-        // Store channel number as an int
-        int channelNum;
-
         
+        bool relayState; // Relay state
+        int relayPin; // Pin number for the relay
+        int channelNum; // Store channel number as an int
 
-        // Turn relay on
-        static void enable (void);
+        public:
+            // Contructor
+            relay (int pin, int ch);
+            
+            // Change state variable
+            void setState (bool newstate);
 
-        // Turn relay off
-        static void disable(void);
+            // Turn relay on
+            void enable (void);
 
-        // Toggle relay state
-        static void toggle(void);
+            // Turn relay off
+            void disable(void);
+
+            // Toggle relay state
+            void toggle(void);
+};
+
+// Turn relay on
+relay::relay (int pin, int ch) {
+    relayState = digitalRead(pin);
+    relayPin = pin;
+    channelNum = ch;
+    disable();
+    // state = true;
+};
+
+// Turn relay on
+void relay::setState (bool newstate) {
+    relayState = newstate;
 };
 
 // Turn relay on
 void relay::enable (void) {
     digitalWrite(relayPin,HIGH);
-    state = true;
+    setState(true);
 };
 
 // Turn relay off
 void relay::disable (void) {
     digitalWrite(relayPin,LOW);
-    state = false;
+    setState(false);
 };
 
 // Toggle relay state
 void relay::toggle (void) {
-    switch (state) {
+    switch (relayState) {
         case true:
             cout<<"DISABLING"<<endl;
             disable();
@@ -64,16 +77,13 @@ void relay::toggle (void) {
     }
 };
 
-relay relayCh1 = {false, relayCh1Pin, 1};
-relay relayCh2 = {false, relayCh2Pin, 2};
-relay relayCh3 = {false, relayCh3Pin, 3};
-
 //--------------------------------------- SETUP -------------------
 
 void setup() {
     pinMode(relayCh1Pin,OUTPUT);
     pinMode(relayCh2Pin,OUTPUT);
     pinMode(relayCh3Pin,OUTPUT);
+
     cout<<"Relay channels engaged"<<endl;
 };
 
@@ -86,12 +96,23 @@ void loop(relay relayCh1, relay relayCh2, relay relayCh3) {
     delay(timeDelay);
 };
 
+//--------------------------------------- MAIN --------------------
+
 int main(int argc, char* argv[]) {
     if (wiringPiSetup() < 0) {
         cout<<"Setup failed"<<endl;
         return 1;
     }
+
     setup();
+
+    relay relayCh1(relayCh1Pin, 1);
+    relay relayCh2(relayCh2Pin, 2);
+    relay relayCh3(relayCh3Pin, 3);
+    
+    cout << "Delaying ..." << endl;
+    delay(2000);
+
     while(1){
         loop(relayCh1,relayCh2,relayCh3);
     }
