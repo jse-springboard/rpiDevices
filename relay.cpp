@@ -16,7 +16,7 @@ void setup() {
     pinMode(relayCh3Pin,OUTPUT);
 
     cout<<"Relay channels engaged"<<endl;
-}
+};
 
 void loop() {
     digitalWrite(relayCh1Pin,HIGH);
@@ -31,7 +31,7 @@ void loop() {
 	delay(timeDelay);
     digitalWrite(relayCh3Pin,LOW);
 	delay(timeDelay);
-}
+};
 
 int main(int argc, char** argv) {
     if (wiringPiSetup() < 0) {
@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
         case 1:
             cout<<"Select relay to toggle: "<<endl;
             // cin>>x
+    }
+    
     while(1){
         loop();
     }
