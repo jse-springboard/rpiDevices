@@ -28,6 +28,8 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
             // Change state variable
             void setState (bool newstate);
 
+            bool getState (void);
+
             // Turn relay on
             void enable (void);
 
@@ -40,16 +42,21 @@ class relay { // Class to use 3 channel RPi Relay Board HAT.
 
 // Turn relay on
 relay::relay (int pin, int ch) {
-    relayState = digitalRead(pin);
+    digitalWrite(pin,LOW);
+    relayState = false;
     relayPin = pin;
     channelNum = ch;
-    disable();
     // state = true;
 };
 
-// Turn relay on
+// Set relay state
 void relay::setState (bool newstate) {
     relayState = newstate;
+};
+
+// Get relay state
+bool relay::getState (void) {
+    return relayState;
 };
 
 // Turn relay on
@@ -66,14 +73,15 @@ void relay::disable (void) {
 
 // Toggle relay state
 void relay::toggle (void) {
-    switch (relayState) {
+    cout <<"Toggling pin "<<relayPin<<" from "<<getState()<<" to "<<!getState()<<endl;
+    switch (getState()) {
         case true:
-            cout<<"DISABLING"<<endl;
             disable();
+            break;
 
         case false:
-            cout<<"ENABLING"<<endl;
             enable();
+            break;
     }
 };
 
@@ -85,15 +93,6 @@ void setup() {
     pinMode(relayCh3Pin,OUTPUT);
 
     cout<<"Relay channels engaged"<<endl;
-};
-
-void loop(relay relayCh1, relay relayCh2, relay relayCh3) {
-    relayCh1.toggle();
-    delay(timeDelay);
-    relayCh2.toggle();
-    delay(timeDelay);
-    relayCh3.toggle();
-    delay(timeDelay);
 };
 
 //--------------------------------------- MAIN --------------------
@@ -114,6 +113,12 @@ int main(int argc, char* argv[]) {
     delay(2000);
 
     while(1){
-        loop(relayCh1,relayCh2,relayCh3);
+        relayCh1.toggle();
+        delay(timeDelay);
+        relayCh2.toggle();
+        delay(timeDelay);
+        relayCh3.toggle();
+        delay(timeDelay);
+        // timeDelay = timeDelay/1.2;
     }
 };
