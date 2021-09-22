@@ -999,3 +999,6 @@ def README():
     Print details of the rpiDevices package.
     '''
     print(__doc__)
+
+def help(function):
+    print(function.__doc__)
