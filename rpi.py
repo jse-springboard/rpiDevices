@@ -1002,3 +1002,6 @@ def README():
 
 def help(function):
     print(function.__doc__)
+
+def new():
+    os.system('clear && toilet -t rpiDevices')
