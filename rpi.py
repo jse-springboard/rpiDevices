@@ -1005,3 +1005,4 @@ def help(function):
 
 def new():
     os.system('clear && toilet -t rpiDevices')
+    README()
