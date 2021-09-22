@@ -1,17 +1,17 @@
 '''
 Author: Jordan Eriksen
 
-Classes for running sensors and actuators with RPi
---------------------------------------------------
+Package of classes for running sensors and actuators with RPi
+-------------------------------------------------------------
 
-ADC24 - Picoscope ADC 20/24 and terminal board
+\t[adc24]\t-> Picoscope ADC 20/24 and terminal board
     Reference: https://www.picotech.com/download/manuals/adc20-adc24-high-resolution-data-logger-users-guide.pdf
     
-TC08 - Picoscope TC08 thermocouple reader
-VPPR - Voltage proportional pressure regulator
-TOF - Time of flight sensor VL6180x
-IMU - 9-dof Inertial Measurement Unit
-PCE_Loadcell - PCE handheld loadcell
+\t[tc08]\t-> Picoscope TC08 thermocouple reader
+\t[vppr]\t-> Voltage proportional pressure regulator
+\t[tof]\t-> Time of flight sensor VL6180x
+\t[imu]\t-> 9-dof Inertial Measurement Unit
+\t[pce]\t-> PCE handheld loadcell
 '''
 
 import numpy as np
@@ -863,7 +863,7 @@ class tc08:
         self.status["close_unit"] = usbtc08.usb_tc08_close_unit(self.chandle)
         assert_pico2000_ok(self.status["close_unit"])
 
-class PCE_Loadcell:
+class pce:
     '''
     Class for handling of PCE_Loadcell via serial port
     --------------------------------------------------
@@ -993,3 +993,9 @@ class imu:
                     pass
         except KeyboardInterrupt:
             print(f'\n------------------------------------------- \n Closing program (no save) \n')
+
+def README():
+    '''
+    Print details of the rpiDevices package.
+    '''
+    print(__doc__)
