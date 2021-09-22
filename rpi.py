@@ -4,14 +4,14 @@ Author: Jordan Eriksen
 Package of classes for running sensors and actuators with RPi
 -------------------------------------------------------------
 
-\t[adc24]\t-> Picoscope ADC 20/24 and terminal board
-    Reference: https://www.picotech.com/download/manuals/adc20-adc24-high-resolution-data-logger-users-guide.pdf
+[adc24]\t-> Picoscope ADC 20/24 and terminal board
+\t      -> Reference: https://www.picotech.com/download/manuals/adc20-adc24-high-resolution-data-logger-users-guide.pdf
     
-\t[tc08]\t-> Picoscope TC08 thermocouple reader
-\t[vppr]\t-> Voltage proportional pressure regulator
-\t[tof]\t-> Time of flight sensor VL6180x
-\t[imu]\t-> 9-dof Inertial Measurement Unit
-\t[pce]\t-> PCE handheld loadcell
+[tc08]\t-> Picoscope TC08 thermocouple reader
+[vppr]\t-> Voltage proportional pressure regulator
+[tof]\t-> Time of flight sensor VL6180x
+[imu]\t-> 9-dof Inertial Measurement Unit
+[pce]\t-> PCE handheld loadcell
 '''
 
 import numpy as np
