@@ -56,7 +56,7 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i[0]) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
 
     return dataFrame
 
@@ -105,7 +105,7 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i[0]) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
 
     return dataFrame
 
