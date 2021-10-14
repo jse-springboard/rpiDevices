@@ -21,6 +21,7 @@ summary     -> [DataFrame] Statistical summary of the results
 from rpiDevices.rpi import adc24, vppr
 import time
 import pandas as pd
+from bashplotlib.scatterplot import plot_scatter
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
@@ -126,6 +127,9 @@ def main():
     print(f'\nRamp pressure change results')
     print(f'----------------------------')
     print(rampDataFrame.describe())
+
+    stepDataFrame.loc[:,['Time','15']].to_csv('./StepData.csv',index_label=False)
+    plot_scatter('./StepData.csv')
 
     ADC.shutdown()
 
