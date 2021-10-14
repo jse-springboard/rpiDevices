@@ -109,7 +109,7 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     return dataFrame
 
-if __name__ == '__main__':
+def main():
     PR = vppr()
     ADC = adc24(channel='nebula')
 
@@ -125,3 +125,6 @@ if __name__ == '__main__':
     rampDataFrame.describe()
 
     ADC.shutdown()
+
+if __name__ == '__main__':
+    main()
