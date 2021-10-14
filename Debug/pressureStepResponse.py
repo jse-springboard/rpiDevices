@@ -124,9 +124,12 @@ def main(testT=10,pressure=3,sampleT=0):
     print(f'----------------------------')
     print(stepDataFrame.describe())
 
-    stepDataFrame.loc[:,['Time',2]].to_csv('./StepData.csv',index=False,header=False)
-    with open('./StepData.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response')
+    stepDataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
+    stepDataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
+    with open('./StepDataPressure.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+    with open('./StepDataFlow.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
 
 
     # rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
