@@ -129,7 +129,7 @@ def main():
     print(rampDataFrame.describe())
 
     stepDataFrame.loc[:,['Time','15']].to_csv('./StepData.csv',index_label=False)
-    plot_scatter(f='./StepData.csv',size=20,pch='.',colour='white',title='Step response')
+    plot_scatter(f='./StepData.csv',xs='',ys='',size=20,pch='.',colour='white',title='Step response')
 
     ADC.shutdown()
 
