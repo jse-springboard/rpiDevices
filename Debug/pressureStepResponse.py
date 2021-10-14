@@ -119,24 +119,27 @@ def main(testT=10,pressure=3,sampleT=0):
     print(f'Done initialising!\nRunning tests.')
 
     stepDataFrame = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
-    rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
     print(stepDataFrame.describe())
 
-    print(f'\nRamp pressure change results')
-    print(f'----------------------------')
-    print(rampDataFrame.describe())
-
-    stepDataFrame.loc[:,['Time',15]].to_csv('./StepData.csv',index=False,header=False)
-    rampDataFrame.loc[:,['Time',15]].to_csv('./RampData.csv',index=False,header=False)
-
+    stepDataFrame.loc[:,['Time',2]].to_csv('./StepData.csv',index=False,header=False)
     with open('./StepData.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response')
-    with open('./RampData.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response')
 
+
+    # rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
+
+    # print(f'\nRamp pressure change results')
+    # print(f'----------------------------')
+    # print(rampDataFrame.describe())
+
+    # rampDataFrame.loc[:,['Time',15]].to_csv('./RampData.csv',index=False,header=False)   
+    # with open('./RampData.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response')
+
+    
     ADC.shutdown()
 
 if __name__ == '__main__':
