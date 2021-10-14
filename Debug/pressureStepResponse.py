@@ -117,8 +117,8 @@ def main():
 
     print(f'Done initialising!\nRunning tests.')
 
-    stepDataFrame = step(PR,ADC,0,10,0)
-    rampDataFrame = ramp(PR,ADC,3,5,10,0)
+    stepDataFrame = step(PR,ADC,0,100,0)
+    rampDataFrame = ramp(PR,ADC,3,5,100,0)
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
