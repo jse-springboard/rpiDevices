@@ -1,0 +1,127 @@
+'''
+Author: Jordan Eriksen
+Date: 2021-10-14
+
+Demand a change in pressure and measure response
+------------------------------------------------
+
+INPUTS
+------
+sampleT     -> [float] Sample period (seconds)
+testT       -> [float] Total time to run test for (seconds)
+pressure    -> [float] Demand pressure change (bar)
+
+OUTPUTS
+-------
+flowRate    -> [array] Flow rate measured (ul/min)
+pressure    -> [array] Actual pressure recorded (bar)
+summary     -> [DataFrame] Statistical summary of the results
+'''
+
+from rpiDevices.rpi import adc24, vppr
+import time
+import pandas as pd
+
+def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
+    '''
+    Record response to a step change in pressure
+    --------------------------------------------
+
+    DEFAULTS
+    --------
+    pressure    -> 2 bar
+    testT       -> 5 s
+    sampleT     -> 0.2 s
+    '''
+    def ap(dicti,key,value):
+        '''
+        Function to return dictionary with new key value pair added
+        '''
+        dicti[key] = value
+        return dicti
+
+    data = [ADC.collect(1)]
+
+    t0 = time.time()
+    timeData = [time.time() - t0]
+
+    PR.set_P(pressure)
+
+    while time.time() - t0 < testT:
+        data.append(ADC.collect(1))
+        timeData.append(time.time() - t0)
+        time.sleep(sampleT)
+    
+    PR.set_P(-1)
+
+    data = [i[0] for i in data] # Remove time placeholder
+    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
+    dataFrame = pd.concat([pd.DataFrame(i[0]) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    return dataFrame
+
+def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
+    '''
+    Record response to a ramped change in pressure
+    ----------------------------------------------
+
+    DEFAULTS
+    --------
+    pressure    -> 2 bar
+    rampT       -> 5 s
+    testT       -> 10 s
+    sampleT     -> 0.2 s
+    '''
+    holdT = testT - rampT
+    pressureGrad = pressure/rampT
+
+    def ap(dicti,key,value):
+        '''
+        Function to return dictionary with new key value pair added
+        '''
+        dicti[key] = value
+        return dicti
+
+    data = [ADC.collect(1)]
+
+    t0 = time.time()
+
+    timeData = [time.time() - t0]
+
+    while time.time() - t0 < rampT:
+        PR.set_P(pressureGrad*(time.time() - t0))
+        data.append(ADC.collect(1))
+        timeData.append(time.time() - t0)
+        time.sleep(sampleT)
+
+    t1 = time.time()
+
+    while time.time() - t1 < holdT:
+        data.append(ADC.collect(1))
+        timeData.append(time.time() - t0)
+        time.sleep(sampleT)
+    
+    PR.set_P(-1)
+
+    data = [i[0] for i in data] # Remove time placeholder
+    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
+    dataFrame = pd.concat([pd.DataFrame(i[0]) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    return dataFrame
+
+if __name__ == '__main__':
+    PR = vppr()
+    ADC = adc24(channel='nebula')
+
+    stepDataFrame = step(PR,ADC,3,10,1)
+    rampDataFrame = ramp(PR,ADC,3,5,10,1)
+
+    print(f'\nStep pressure change results')
+    print(f'----------------------------')
+    stepDataFrame.describe()
+
+    print(f'\nRamp pressure change results')
+    print(f'----------------------------')
+    rampDataFrame.describe()
+
+    ADC.shutdown()
