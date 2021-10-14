@@ -110,19 +110,22 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
     return dataFrame
 
 def main():
+    print(f'Initialising devices ...')
     PR = vppr()
     ADC = adc24(channel='nebula')
+
+    print(f'Done initialising!\nRunning tests.')
 
     stepDataFrame = step(PR,ADC,3,10,1)
     rampDataFrame = ramp(PR,ADC,3,5,10,1)
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
-    stepDataFrame.describe()
+    print(stepDataFrame.describe())
 
     print(f'\nRamp pressure change results')
     print(f'----------------------------')
-    rampDataFrame.describe()
+    print(rampDataFrame.describe())
 
     ADC.shutdown()
 
