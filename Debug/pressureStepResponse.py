@@ -117,7 +117,7 @@ def main():
 
     print(f'Done initialising!\nRunning tests.')
 
-    stepDataFrame = step(PR,ADC,3,10,0)
+    stepDataFrame = step(PR,ADC,0,10,0)
     rampDataFrame = ramp(PR,ADC,3,5,10,0)
 
     print(f'\nStep pressure change results')
@@ -129,7 +129,7 @@ def main():
     print(rampDataFrame.describe())
 
     print(stepDataFrame.loc[:,['Time',15]])
-    rampDataFrame.loc[:,['Time',15]].to_csv('./StepData.csv',index=False,header=False)
+    stepDataFrame.loc[:,['Time',15]].to_csv('./StepData.csv',index=False,header=False)
 
     with open('./StepData.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response')
