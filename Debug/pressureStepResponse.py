@@ -128,7 +128,7 @@ def main():
     print(f'----------------------------')
     print(rampDataFrame.describe())
 
-    stepDataFrame.loc[:,['Time','15']].to_csv('./StepData.csv',index_label=False)
+    stepDataFrame.loc[:,['Time','15']].to_csv('./StepData.csv',index_label=False,header=False)
 
     with open('./StepData.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='.',colour='white',title='Step response')
