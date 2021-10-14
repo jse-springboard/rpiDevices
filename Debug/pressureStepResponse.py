@@ -110,15 +110,16 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     return dataFrame
 
-def main():
+def main(testT=10,pressure=3,sampleT=0):
+    print(f'Running step and ramp test at {pressure} bar for {testT} seconds with a sample period of {sampleT} seconds.')
     print(f'Initialising devices ...')
     PR = vppr()
     ADC = adc24(channel='nebula')
 
     print(f'Done initialising!\nRunning tests.')
 
-    stepDataFrame = step(PR,ADC,0,100,0)
-    rampDataFrame = ramp(PR,ADC,3,5,100,0)
+    stepDataFrame = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
+    rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
