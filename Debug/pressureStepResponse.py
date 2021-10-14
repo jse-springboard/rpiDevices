@@ -128,6 +128,7 @@ def main():
     print(f'----------------------------')
     print(rampDataFrame.describe())
 
+    print(stepDataFrame.loc[:,['Time','15']])
     stepDataFrame.loc[:,['Time','15']].to_csv('./StepData.csv',index=False,header=False)
 
     with open('./StepData.csv') as f:
