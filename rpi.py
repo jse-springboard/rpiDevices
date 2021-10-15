@@ -351,6 +351,7 @@ class adc24:
         for key in data:
             df_dict[key] = data[key]
         
+        print(df_dict)
         df = pd.DataFrame(df_dict)
 
         return df
