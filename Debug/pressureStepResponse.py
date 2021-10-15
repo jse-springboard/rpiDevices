@@ -240,7 +240,7 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
     dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
-    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
+    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
@@ -254,7 +254,7 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
         plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
     with open('./ImpulseDataFlow.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Flow rate')
-        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
+        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,showSummary=True)
 
     return dataFrame
 
