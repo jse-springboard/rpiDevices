@@ -350,7 +350,7 @@ class adc24:
 
         for key in data:
             df_dict[key] = data[key]
-        print(df_dict)
+            
         df = pd.DataFrame(df_dict)
 
         return df
@@ -495,10 +495,8 @@ class adc24:
         '''
         Take buffer from stream and strip empty values
         '''
-        print(values)
         values_out = {ch:[val for idx, val in enumerate(values[ch]) if ((idx == 0) or (round(times[idx],3) != 0.0))] for ch in values.keys()}
         times = [val for i, val in enumerate(times) if ((i == 0) or (round(val,3) != 0.0))]
-        print(values_out)
         
         return values_out,times
 
