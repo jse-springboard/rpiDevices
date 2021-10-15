@@ -346,7 +346,7 @@ class adc24:
         -----------------------------------------------------
         '''
         df_dict = {}
-        df_dict['Time'] = list(times.items())[0][1]
+        df_dict['Time'] = times
 
         for key in data:
             df_dict[key] = data[key]
@@ -490,6 +490,13 @@ class adc24:
             times_out[self.channel[n]] = np.around(np.average(np.ctypeslib.as_array(times[n::2])/1000),decimals=4)
 
         return values_out, times_out
+    
+    def _reduceBuffer(self,values,times):
+        '''
+        Take buffer from stream and strip empty values
+        '''
+        values_out = {ch:[val for num, val in enumerate(list(values.values())) if num != 0 if times[num] != 0] for ch in values.keys()}
+        return values_out,times
 
     def collect(self,nsamples=1,method='block',reset=0,dataframe=False):
         '''
@@ -543,15 +550,19 @@ class adc24:
         Conversion equation turns raw ADC output into a physical value
         '''
         values_out = {}
-        times_out = {}
+
+        times_out = []
+        times_out = np.ctypeslib.as_array(times[:nsamples])/1000
 
         for n in range(self.numchannels):
             ch = self.channel[n]
             x0 = self.coefficients[ch][0]
             x1 = self.coefficients[ch][1]
 
-            values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::self.numchannels]) * x1/self.maxAdc[ch].value) + x0)
-            times_out[self.channel[n]] = np.ctypeslib.as_array(times[:nsamples])/1000
+            values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::self.numchannels]) * x1/self.maxAdc[ch].value) + x0)    
+
+        if method == 'stream':
+            values_out, times_out = _reduceBuffer(values_out,times_out)
 
         if dataframe == True:
             df = self._dataframe(values_out, times_out)
