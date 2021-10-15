@@ -102,11 +102,11 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     PR.set_P(-1)
 
     dataFrame = dataMain
-    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
+    dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\Hold pressure change results')
     print(f'----------------------------')
-    print(dataFrame.describe(exclude=['Time']))
+    print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
     dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./HoldDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./HoldDataFlow.csv',index=False,header=True)
@@ -197,11 +197,11 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     PR.set_P(-1)
 
     dataFrame = pd.concat([dataLead,dataPulse,dataMain],ignore_index=True)
-    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
+    dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nImpulse pressure change results')
     print(f'----------------------------')
-    print(dataFrame.describe(exclude=['Time']))
+    print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
     dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./ImpulseDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./ImpulseDataFlow.csv',index=False,header=True)
