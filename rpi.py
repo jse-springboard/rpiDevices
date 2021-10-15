@@ -616,6 +616,12 @@ class adc24:
         else:
             print(f'WARNING: Device already awake.')
 
+    def ready(self):
+        '''
+        Return 1 if ready to collect data, 0 if not ready
+        '''
+        return hrdl.HRDLCloseUnit(self.chandle)
+
     def shutdown(self):
         '''
         Safely shutdown the ADC using the HRDLCloseUnit command 
