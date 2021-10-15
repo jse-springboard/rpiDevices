@@ -32,15 +32,15 @@ def delayCollect(ADC,delayT=5,_delayTolerance=0.05,_print=False):
     t0 = time.time()
     now = 0.0
 
-    dataOut = ADC.collect(nsamples=20,method='stream',dataframe=True)
+    dataOut = ADC.collect(nsamples=10,method='stream',dataframe=True)
 
     while now < stopT:
         try:
             if ADC.ready():
-                dataOut = pd.concat([dataOut,ADC.collect(nsamples=20,method='stream',dataframe=True)],ignore_index=True)
+                dataOut = pd.concat([dataOut,ADC.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
             else:
                 continue
-            
+
             if _print==True:
                 print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
 
