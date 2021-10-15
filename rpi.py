@@ -350,7 +350,7 @@ class adc24:
 
         for key in data:
             df_dict[key] = data[key]
-        
+        print(df_dict)
         df = pd.DataFrame(df_dict)
 
         return df
@@ -495,8 +495,10 @@ class adc24:
         '''
         Take buffer from stream and strip empty values
         '''
+        print(values)
         values_out = {ch:[val for num, val in enumerate(values.values()) if num != 0 if times[num] != 0.0] for ch in values.keys()}
-        
+        print(values_out)
+
         for i in values_out:
             values_out[i] = values_out[i][0]
         
