@@ -21,7 +21,8 @@ summary     -> [DataFrame] Statistical summary of the results
 from rpiDevices.rpi import adc24, vppr
 import time
 import pandas as pd
-from bashplotlib.scatterplot import plot_scatter, plot_histogram
+from bashplotlib.scatterplot import plot_scatter
+from bashplotlib.histogram import plot_hist
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
@@ -246,8 +247,10 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
 
     with open('./StepDataPressure.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+        plot_hist(f=f,height=20,pch='x',colour='white',title='Step response - Pressure',xlab=True,nosummary=False)
     with open('./StepDataFlow.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
+        plot_hist(f=f,height=20,pch='x',colour='white',title='Step response - Pressure',xlab=True,nosummary=False)
 
     return dataFrame
 
