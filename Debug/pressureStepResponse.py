@@ -49,11 +49,14 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     PR.set_P(pressure)
 
     while time.time() - t0 < testT:
-        data.append(ADC.collect(1))
-        timeData.append(time.time() - t0)
-        print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
-        time.sleep(sampleT)
-    
+        try:
+            data.append(ADC.collect(1))
+            timeData.append(time.time() - t0)
+            print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
+            time.sleep(sampleT)
+        except KeyboardInterrupt:
+            break
+        
     PR.set_P(-1)
 
     data = [i[0] for i in data] # Remove time placeholder
