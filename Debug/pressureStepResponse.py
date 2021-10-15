@@ -185,13 +185,13 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     pressure    -> 5 bar
     testT       -> 5 s
     '''
-    dataLead = delayCollect(ADC,delayT=5)
+    dataLead = delayCollect(ADC,delayT=5,_delayTolerance=0.5)
 
     PR.set_P(pressure)
-    dataPulse = delayCollect(ADC,delayT=0.5)
+    dataPulse = delayCollect(ADC,delayT=0.5,_delayTolerance=0.3)
     PR.set_P(-1)
 
-    dataMain = delayCollect(ADC,delayT=testT)
+    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=0.5)
     ADC.stop()
     
     PR.set_P(-1)
