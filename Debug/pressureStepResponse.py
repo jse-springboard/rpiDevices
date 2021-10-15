@@ -99,7 +99,7 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     PR.set_P(pressure)
 
-    time.sleep(5)
+    time.sleep(10)
     data = [ADC.collect(1)]
     t0 = time.time()
     timeData = [time.time() - t0]
