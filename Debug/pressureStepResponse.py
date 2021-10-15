@@ -70,9 +70,6 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     
     PR.set_P(-1)
 
-    print(dataLead)
-    print(dataMain)
-
     dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
     dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
