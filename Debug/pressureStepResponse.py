@@ -216,9 +216,8 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     data = [ADC.collect(1)]
 
     t0 = time.time()
-    now = time.time() - t0
 
-    timeData = [now]
+    timeData = [0]
 
     PR.set_P(pressure)
     time.sleep(0.1)
