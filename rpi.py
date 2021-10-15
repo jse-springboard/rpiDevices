@@ -496,7 +496,7 @@ class adc24:
         Take buffer from stream and strip empty values
         '''
         print(values)
-        values_out = {ch:[val for num, val in enumerate(values.values()) if ((num != 0) & (round(times[num],3) != 0.0))] for ch in values.keys()}
+        values_out = {ch:[val for idx, val in enumerate(values[ch]) if ((idx != 0) & (round(times[idx],3) != 0.0))] for ch in values.keys()}
         print(values_out)
 
         for i in values_out:
