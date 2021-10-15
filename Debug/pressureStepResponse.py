@@ -21,8 +21,30 @@ summary     -> [DataFrame] Statistical summary of the results
 from rpiDevices.rpi import adc24, vppr
 import time
 import pandas as pd
-from bashplotlib.scatterplot import plot_scatter
-from bashplotlib.histogram import plot_hist
+
+def delayCollect(ADC,delayT=5,_delayTolerance=0.05,_print=False):
+    '''
+    Function to collect and manage buffer during a pause.
+    Returns dataframe of output.
+    '''
+    stopT = delayT-_delayTolerance
+
+    t0 = time.time()
+    now = 0.0
+
+    dataOut = ADC.collect(nsamples=20,method='stream',dataframe=True)
+
+    while now < stopT:
+        try:
+            dataOut = pd.concat([dataOut,ADC.collect(nsamples=20,method='stream',dataframe=True)],ignore_index=True)
+            
+            if _print==True:
+                print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
+
+            time.sleep(_delayTolerance)
+            now = time.time() - t0
+        except KeyboardInterrupt:
+            break
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
@@ -35,47 +57,24 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     testT       -> 5 s
     sampleT     -> 0.2 s
     '''
-    def ap(dicti,key,value):
-        '''
-        Function to return dictionary with new key value pair added
-        '''
-        dicti[key] = value
-        return dicti
-
-    data = [ADC.collect(1)]
-
-    t0 = time.time()
-    timeData = [time.time() - t0]
+    dataLead = delayCollect(ADC,delayT=5,_delayTolerance=sampleT)
 
     PR.set_P(pressure)
 
-    while time.time() - t0 < testT:
-        try:
-            data.append(ADC.collect(1))
-            timeData.append(time.time() - t0)
-            print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
-            time.sleep(sampleT)
-        except KeyboardInterrupt:
-            break
-        
+    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=sampleT)
+    ADC.stop()
+    
     PR.set_P(-1)
 
-    data = [i[0] for i in data] # Remove time placeholder
-    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
     dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
-    print(dataFrame.describe())
+    print(dataFrame.describe(exclude=['Time']))
 
     dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
-
-    # with open('./StepDataPressure.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
-    # with open('./StepDataFlow.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
 
     return dataFrame
 
@@ -90,47 +89,23 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     testT       -> 5 s
     sampleT     -> 0.2 s
     '''
-    def ap(dicti,key,value):
-        '''
-        Function to return dictionary with new key value pair added
-        '''
-        dicti[key] = value
-        return dicti
-
     PR.set_P(pressure)
-
     time.sleep(10)
-    data = [ADC.collect(1)]
-    t0 = time.time()
-    timeData = [time.time() - t0]
 
-    while time.time() - t0 < testT:
-        try:
-            data.append(ADC.collect(1))
-            timeData.append(time.time() - t0)
-            print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
-            time.sleep(sampleT)
-        except KeyboardInterrupt:
-            break
-        
+    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=sampleT)
+    ADC.stop()
+    
     PR.set_P(-1)
 
-    data = [i[0] for i in data] # Remove time placeholder
-    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = dataMain
     dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
-    print(f'\nStep pressure change results')
+    print(f'\Hold pressure change results')
     print(f'----------------------------')
-    print(dataFrame.describe())
+    print(dataFrame.describe(exclude=['Time']))
 
     dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./HoldDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./HoldDataFlow.csv',index=False,header=True)
-
-    # with open('./HoldDataPressure.csv') as f:
-    #     plot_hist(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
-    # with open('./HoldDataFlow.csv') as f:
-    #     plot_hist(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
 
     return dataFrame
 
@@ -206,54 +181,26 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     pressure    -> 5 bar
     testT       -> 5 s
     '''
-    def ap(dicti,key,value):
-        '''
-        Function to return dictionary with new key value pair added
-        '''
-        dicti[key] = value
-        return dicti
-
-    data = [ADC.collect(1)]
-
-    t0 = time.time()
-
-    timeData = [0]
+    dataLead = delayCollect(ADC,delayT=5)
 
     PR.set_P(pressure)
-    time.sleep(0.1)
+    dataPulse = delayCollect(ADC,delayT=0.5)
     PR.set_P(-1)
 
-    now = time.time() - t0
-
-    while now < testT:
-        try:
-            data.append(ADC.collect(1))
-            timeData.append(now)
-            # print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
-            now = time.time() - t0
-        except KeyboardInterrupt:
-            break
-        
+    dataMain = delayCollect(ADC,delayT=testT)
+    ADC.stop()
+    
     PR.set_P(-1)
 
-    data = [i[0] for i in data] # Remove time placeholder
-    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([dataLead,dataPulse,dataMain],ignore_index=True)
     dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
-    print(f'\nStep pressure change results')
+    print(f'\nImpulse pressure change results')
     print(f'----------------------------')
-    print(dataFrame.describe())
+    print(dataFrame.describe(exclude=['Time']))
 
     dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./ImpulseDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./ImpulseDataFlow.csv',index=False,header=True)
-
-    # with open('./ImpulseDataPressure.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Pressure')
-    #     plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
-    # with open('./ImpulseDataFlow.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Flow rate')
-    #     plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,showSummary=True)
 
     return dataFrame
 
