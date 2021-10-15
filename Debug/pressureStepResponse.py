@@ -63,19 +63,19 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
     dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
-    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
+    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
     print(dataFrame.describe())
 
-    dataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
-    dataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
 
-    with open('./StepDataPressure.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
-    with open('./StepDataFlow.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
+    # with open('./StepDataPressure.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+    # with open('./StepDataFlow.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
 
     return dataFrame
 
@@ -118,19 +118,19 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
     dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
-    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
+    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
     print(dataFrame.describe())
 
-    dataFrame.loc[:,['Time',2]].to_csv('./HoldDataPressure.csv',index=False,header=False)
-    dataFrame.loc[:,['Time',15]].to_csv('./HoldDataFlow.csv',index=False,header=False)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./HoldDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./HoldDataFlow.csv',index=False,header=True)
 
-    with open('./HoldDataPressure.csv') as f:
-        plot_histogram(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
-    with open('./HoldDataFlow.csv') as f:
-        plot_histogram(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
+    # with open('./HoldDataPressure.csv') as f:
+    #     plot_hist(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
+    # with open('./HoldDataFlow.csv') as f:
+    #     plot_hist(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
 
     return dataFrame
 
@@ -180,19 +180,19 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
     dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
-    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
+    dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
     print(f'\nRamp pressure change results')
     print(f'----------------------------')
     print(dataFrame.describe())
 
-    dataFrame.loc[:,['Time',2]].to_csv('./RampDataPressure.csv',index=False,header=False)
-    dataFrame.loc[:,['Time',15]].to_csv('./RampDataFlow.csv',index=False,header=False)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./RampDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./RampDataFlow.csv',index=False,header=True)
 
-    with open('./RampDataPressure.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Pressure')
-    with open('./RampDataFlow.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Flow rate')
+    # with open('./RampDataPressure.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Pressure')
+    # with open('./RampDataFlow.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Flow rate')
 
     return dataFrame
 
@@ -245,15 +245,15 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     print(f'----------------------------')
     print(dataFrame.describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./ImpulseDataPressure.csv',index=False,header=False)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./ImpulseDataFlow.csv',index=False,header=False)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./ImpulseDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./ImpulseDataFlow.csv',index=False,header=True)
 
-    with open('./ImpulseDataPressure.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Pressure')
-        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
-    with open('./ImpulseDataFlow.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Flow rate')
-        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,showSummary=True)
+    # with open('./ImpulseDataPressure.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Pressure')
+    #     plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
+    # with open('./ImpulseDataFlow.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Flow rate')
+    #     plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,showSummary=True)
 
     return dataFrame
 
