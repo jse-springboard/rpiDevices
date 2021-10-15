@@ -71,14 +71,14 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     PR.set_P(-1)
 
     dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
-    dataFrame.columns = ['Time (s)','Pressure (bar)','Flow rate (ul/min)']
+    dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time (s)','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time (s)','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
 
     return dataFrame
 
