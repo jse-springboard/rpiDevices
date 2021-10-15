@@ -190,7 +190,7 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     PR.set_P(pressure)
     dataPulse = delayCollect(ADC,delayT=0.5,_delayTolerance=0.3)
     PR.set_P(-1)
-
+    time.sleep(0.5)
     dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=0.5)
     ADC.stop()
     
