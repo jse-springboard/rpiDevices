@@ -75,7 +75,7 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
-    print(dataFrame.loc[['Pressure (bar)','Flow rate (ul/min)']].describe())
+    print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
     dataFrame.loc[:,['Time (s)','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
     dataFrame.loc[:,['Time (s)','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
