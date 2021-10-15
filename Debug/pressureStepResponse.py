@@ -251,10 +251,10 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
 
     with open('./ImpulseDataPressure.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Pressure')
-        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,nosummary=False)
+        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
     with open('./ImpulseDataFlow.csv') as f:
         plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Impulse response - Flow rate')
-        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True,nosummary=False)
+        plot_hist(f=f,height=20,pch='x',colour='white',title='Impulse response - Pressure',xlab=True)
 
     return dataFrame
 
