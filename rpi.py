@@ -497,6 +497,10 @@ class adc24:
         Take buffer from stream and strip empty values
         '''
         values_out = {ch:[val for num, val in enumerate(values.values()) if num != 0 if times[num] != 0] for ch in values.keys()}
+        
+        for i in values_out:
+            values_out[i] = values_out[i][0]
+        
         return values_out,times
 
     def collect(self,nsamples=1,method='block',reset=0,dataframe=False):
