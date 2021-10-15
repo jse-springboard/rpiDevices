@@ -65,6 +65,48 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     return dataFrame
 
+def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
+    '''
+    Record response to a step change in pressure
+    --------------------------------------------
+
+    DEFAULTS
+    --------
+    pressure    -> 2 bar
+    testT       -> 5 s
+    sampleT     -> 0.2 s
+    '''
+    def ap(dicti,key,value):
+        '''
+        Function to return dictionary with new key value pair added
+        '''
+        dicti[key] = value
+        return dicti
+
+    PR.set_P(pressure)
+
+    time.sleep(5)
+    data = [ADC.collect(1)]
+    t0 = time.time()
+    timeData = [time.time() - t0]
+
+    while time.time() - t0 < testT:
+        try:
+            data.append(ADC.collect(1))
+            timeData.append(time.time() - t0)
+            print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
+            time.sleep(sampleT)
+        except KeyboardInterrupt:
+            break
+        
+    PR.set_P(-1)
+
+    data = [i[0] for i in data] # Remove time placeholder
+    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    return dataFrame
+
 def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
     '''
     Record response to a ramped change in pressure
@@ -122,20 +164,35 @@ def main(testT=10,pressure=3,sampleT=0):
 
     print(f'Done initialising!\nRunning tests.')
 
-    stepDataFrame = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
+    # HOLD RESPONSE
+    holdDataFrame = hold(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
-    print(stepDataFrame.describe())
+    print(holdDataFrame.describe())
 
-    stepDataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
-    stepDataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
-    with open('./StepDataPressure.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
-    with open('./StepDataFlow.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
+    holdDataFrame.loc[:,['Time',2]].to_csv('./HoldDataPressure.csv',index=False,header=False)
+    holdDataFrame.loc[:,['Time',15]].to_csv('./HoldDataFlow.csv',index=False,header=False)
+    with open('./HoldDataPressure.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
+    with open('./HoldDataFlow.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
 
+    # STEP RESPONSE
+    # stepDataFrame = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
 
+    # print(f'\nStep pressure change results')
+    # print(f'----------------------------')
+    # print(stepDataFrame.describe())
+
+    # stepDataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
+    # stepDataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
+    # with open('./StepDataPressure.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+    # with open('./StepDataFlow.csv') as f:
+    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
+
+    # RAMP RESPONSE
     # rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
 
     # print(f'\nRamp pressure change results')
