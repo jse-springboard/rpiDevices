@@ -47,6 +47,8 @@ def delayCollect(ADC,delayT=5,_delayTolerance=0.05,_print=False):
 
         except KeyboardInterrupt:
             break
+    
+    return dataOut
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
@@ -70,7 +72,7 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     print(dataLead)
     print(dataMain)
-    
+
     dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
     dataFrame.columns = ['Pressure (bar)','Flow rate (ul/min)','Time']
 
