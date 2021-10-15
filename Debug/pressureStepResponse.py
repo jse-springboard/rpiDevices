@@ -62,7 +62,8 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
@@ -116,7 +117,8 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
@@ -177,7 +179,8 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
 
     print(f'\nRamp pressure change results')
     print(f'----------------------------')
@@ -236,7 +239,8 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame.columns = ['Pressure (bar)','Flowrate (ul/min)','Time']
 
     print(f'\nStep pressure change results')
     print(f'----------------------------')
