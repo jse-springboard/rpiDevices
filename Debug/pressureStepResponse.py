@@ -36,13 +36,15 @@ def delayCollect(ADC,delayT=5,_delayTolerance=0.05,_print=False):
 
     while now < stopT:
         try:
+            time.sleep(_delayTolerance)
+
             dataOut = pd.concat([dataOut,ADC.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
             
             if _print==True:
                 print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
-
-            time.sleep(_delayTolerance)
+            
             now = time.time() - t0
+            
         except KeyboardInterrupt:
             break
 
