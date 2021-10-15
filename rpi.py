@@ -497,10 +497,8 @@ class adc24:
         '''
         print(values)
         values_out = {ch:[val for idx, val in enumerate(values[ch]) if ((idx == 0) or (round(times[idx],3) != 0.0))] for ch in values.keys()}
+        times = [val for i, val in enumerate(times) if ((i == 0) or (round(val,3) != 0.0))]
         print(values_out)
-
-        for i in values_out:
-            values_out[i] = values_out[i][0]
         
         return values_out,times
 
