@@ -562,7 +562,7 @@ class adc24:
             values_out[self.channel[n]] = ((np.ctypeslib.as_array(values[n::self.numchannels]) * x1/self.maxAdc[ch].value) + x0)    
 
         if method == 'stream':
-            values_out, times_out = _reduceBuffer(values_out,times_out)
+            values_out, times_out = self._reduceBuffer(values_out,times_out)
 
         if dataframe == True:
             df = self._dataframe(values_out, times_out)
