@@ -77,8 +77,8 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./StepDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./StepDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/StepDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/StepDataFlow.csv',index=False,header=True)
 
     return dataFrame
 
@@ -108,8 +108,8 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./HoldDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./HoldDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/HoldDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/HoldDataFlow.csv',index=False,header=True)
 
     return dataFrame
 
@@ -203,8 +203,8 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./ImpulseDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./ImpulseDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/ImpulseDataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/ImpulseDataFlow.csv',index=False,header=True)
 
     return dataFrame
 
