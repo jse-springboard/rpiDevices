@@ -21,7 +21,7 @@ summary     -> [DataFrame] Statistical summary of the results
 from rpiDevices.rpi import adc24, vppr
 import time
 import pandas as pd
-from bashplotlib.scatterplot import plot_scatter
+from bashplotlib.scatterplot import plot_scatter, plot_histogram
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
@@ -61,14 +61,26 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    print(f'\nStep pressure change results')
+    print(f'----------------------------')
+    print(dataFrame.describe())
+
+    dataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
+    dataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
+
+    with open('./StepDataPressure.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+    with open('./StepDataFlow.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
 
     return dataFrame
 
 def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
-    Record response to a step change in pressure
-    --------------------------------------------
+    Record change in pressure and flow rate over a period of time
+    -------------------------------------------------------------
 
     DEFAULTS
     --------
@@ -103,7 +115,19 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    print(f'\nStep pressure change results')
+    print(f'----------------------------')
+    print(dataFrame.describe())
+
+    dataFrame.loc[:,['Time',2]].to_csv('./HoldDataPressure.csv',index=False,header=False)
+    dataFrame.loc[:,['Time',15]].to_csv('./HoldDataFlow.csv',index=False,header=False)
+
+    with open('./HoldDataPressure.csv') as f:
+        plot_histogram(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
+    with open('./HoldDataFlow.csv') as f:
+        plot_histogram(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
 
     return dataFrame
 
@@ -152,7 +176,78 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     data = [i[0] for i in data] # Remove time placeholder
     data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
-    dataFrame = pd.concat([pd.DataFrame(i) for i in data],ignore_index=True) # Combine measurements into one dataframe
+    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    print(f'\nRamp pressure change results')
+    print(f'----------------------------')
+    print(dataFrame.describe())
+
+    dataFrame.loc[:,['Time',2]].to_csv('./RampDataPressure.csv',index=False,header=False)
+    dataFrame.loc[:,['Time',15]].to_csv('./RampDataFlow.csv',index=False,header=False)
+
+    with open('./RampDataPressure.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Pressure')
+    with open('./RampDataFlow.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Flow rate')
+
+    return dataFrame
+
+def impulse(PR,ADC,pressure=5.0,testT=5.0):
+    '''
+    Record response to pressure impulse
+    -----------------------------------
+
+    DEFAULTS
+    --------
+    pressure    -> 5 bar
+    testT       -> 5 s
+    '''
+    def ap(dicti,key,value):
+        '''
+        Function to return dictionary with new key value pair added
+        '''
+        dicti[key] = value
+        return dicti
+
+    data = [ADC.collect(1)]
+
+    t0 = time.time()
+    now = time.time() - t0
+
+    timeData = [now]
+
+    PR.set_P(pressure)
+    time.sleep(0.1)
+    PR.set_P(-1)
+
+    now = time.time() - t0
+
+    while now < testT:
+        try:
+            data.append(ADC.collect(1))
+            timeData.append(now)
+            # print(f'({time.time() - t0:.1f}/{testT}) Pressure = {float(data[-1][0][2]):.2f} ({pressure:.2f}) bar    Flow rate = {float(data[-1][0][15]):.2f} ul/min        ',end='\r')
+            now = time.time() - t0
+        except KeyboardInterrupt:
+            break
+        
+    PR.set_P(-1)
+
+    data = [i[0] for i in data] # Remove time placeholder
+    data = [ap(dic,'Time',timeData[i]) for i, dic in list(enumerate(data))] # Use measured time as Time data column
+    dataFrame = pd.concat([pd.DataFrame(i,columns=['Pressure','Flow rate','Time']) for i in data],ignore_index=True) # Combine measurements into one dataframe
+
+    print(f'\nStep pressure change results')
+    print(f'----------------------------')
+    print(dataFrame.describe())
+
+    dataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
+    dataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
+
+    with open('./StepDataPressure.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
+    with open('./StepDataFlow.csv') as f:
+        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
 
     return dataFrame
 
@@ -164,47 +259,23 @@ def main(testT=10,pressure=3,sampleT=0):
 
     print(f'Done initialising!\nRunning tests.')
 
+    output_df = {}
+
     # HOLD RESPONSE
-    holdDataFrame = hold(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
-
-    print(f'\nStep pressure change results')
-    print(f'----------------------------')
-    print(holdDataFrame.describe())
-
-    holdDataFrame.loc[:,['Time',2]].to_csv('./HoldDataPressure.csv',index=False,header=False)
-    holdDataFrame.loc[:,['Time',15]].to_csv('./HoldDataFlow.csv',index=False,header=False)
-    with open('./HoldDataPressure.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Pressure')
-    with open('./HoldDataFlow.csv') as f:
-        plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Hold response - Flow rate')
+    output_df['Hold'] = hold(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
 
     # STEP RESPONSE
-    # stepDataFrame = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
+    # output_df['Step'] = step(PR,ADC,pressure=pressure,testT=testT,sampleT=sampleT)
 
-    # print(f'\nStep pressure change results')
-    # print(f'----------------------------')
-    # print(stepDataFrame.describe())
-
-    # stepDataFrame.loc[:,['Time',2]].to_csv('./StepDataPressure.csv',index=False,header=False)
-    # stepDataFrame.loc[:,['Time',15]].to_csv('./StepDataFlow.csv',index=False,header=False)
-    # with open('./StepDataPressure.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Pressure')
-    # with open('./StepDataFlow.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Step response - Flow rate')
+    # IMPULSE RESPONSE
+    output_df['Impulse'] = impulse(PR,ADC,testT=testT)
 
     # RAMP RESPONSE
-    # rampDataFrame = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
-
-    # print(f'\nRamp pressure change results')
-    # print(f'----------------------------')
-    # print(rampDataFrame.describe())
-
-    # rampDataFrame.loc[:,['Time',15]].to_csv('./RampData.csv',index=False,header=False)   
-    # with open('./RampData.csv') as f:
-    #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response')
-
+    # output_df['Ramp'] = ramp(PR,ADC,pressure=pressure,rampT=5,testT=testT,sampleT=sampleT)
     
     ADC.shutdown()
+
+    return output_df
 
 if __name__ == '__main__':
     main()
