@@ -20,6 +20,7 @@ summary     -> [DataFrame] Statistical summary of the results
 
 from rpiDevices.rpi import adc24, vppr
 import time
+import datetime
 import pandas as pd
 
 def delayCollect(ADC,delayT=5,_delayTolerance=0.5,_print=False):
@@ -82,7 +83,7 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
 
     return dataFrame
 
-def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
+def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     '''
     Record change in pressure and flow rate over a period of time
     -------------------------------------------------------------
@@ -93,17 +94,24 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     testT       -> 5 s
     sampleT     -> 0.2 s
     '''
+    
+    print(f'[VPPR] Set hold pressure to {pressure} bar')
     PR.set_P(pressure)
-    time.sleep(10)
 
+    print(f'[{datetime.datetime.now()}] Settling time ({_settlingTime} s)')
+    time.sleep(_settlingTime)
+    
+    print(f'[HOLD] Run test for {testT} seconds')
     dataMain = delayCollect(ADC,delayT=testT)
     ADC.stop()
     
+    print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
 
-    dataInteral = round(sampleT/(dataMain['Time'].max() / dataMain.count()[0]))
+    dataInterval = round(sampleT/(dataMain['Time'].max() / dataMain.count()[0]))
+    print(f'[DBUG] Data interval set to {dataInterval}')
 
-    dataFrame = dataMain.rolling(window=dataInteral,center=True).mean().iloc[::dataInteral,:].dropna()
+    dataFrame = dataMain.rolling(window=dataInterval,center=True).mean().iloc[::dataInterval,:].dropna()
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nHold pressure change results')
