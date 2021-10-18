@@ -23,39 +23,41 @@ import time
 import datetime
 import pandas as pd
 
-def delayCollect(ADC,delayT=5,_delayTolerance=0.5,_print=False):
-    '''
-    Function to collect and manage buffer during a pause.
-    Returns dataframe of output.
-    '''
-    stopT = delayT-_delayTolerance
+# def delayCollect(ADC,delayT=5,_delayTolerance=0.5,_print=False):
+#     '''
+#     Function to collect and manage buffer during a pause.
+#     Returns dataframe of output.
 
-    t0 = time.time()
-    now = 0.0
+#     MUST PASS A adc24() INSTANCE!
+#     '''
+#     stopT = delayT-_delayTolerance
 
-    dataOut = ADC.collect(nsamples=10,method='stream',dataframe=True)
+#     t0 = time.time()
+#     now = 0.0
 
-    while now < stopT:
-        try:
-            time.sleep(_delayTolerance)
+#     dataOut = ADC.collect(nsamples=10,method='stream',dataframe=True)
 
-            dataOut = pd.concat([dataOut,ADC.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
+#     while now < stopT:
+#         try:
+#             time.sleep(_delayTolerance)
+
+#             dataOut = pd.concat([dataOut,ADC.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
             
-            if _print==True:
-                print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
+#             if _print==True:
+#                 print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
             
-            now = time.time() - t0
+#             now = time.time() - t0
 
-        except KeyboardInterrupt:
-            break
+#         except KeyboardInterrupt:
+#             break
     
-    return dataOut
+#     return dataOut
 
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
     Record response to a step change in pressure
     --------------------------------------------
-
+    MUST PASS A vppr() AND adc24() INSTANCE!
     DEFAULTS
     --------
     pressure    -> 2 bar
@@ -63,13 +65,13 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     sampleT     -> 0.2 s
     '''
     print(f'[STEP] Run lead-in for {5} seconds')
-    dataLead = delayCollect(ADC,delayT=5)
+    dataLead = ADC.bufferCollect(delayT=5)
 
     print(f'[VPPR] Set hold pressure to {pressure} bar')
     PR.set_P(pressure)
 
     print(f'[STEP] Run test for {testT} seconds')
-    dataMain = delayCollect(ADC,delayT=testT)
+    dataMain = ADC.bufferCollect(delayT=testT)
     ADC.stop()
     
     print(f'[VPPR] Reset pressure regulator')
@@ -96,7 +98,7 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     '''
     Record change in pressure and flow rate over a period of time
     -------------------------------------------------------------
-
+    MUST PASS A vppr() AND adc24() INSTANCE!
     DEFAULTS
     --------
     pressure    -> 2 bar
@@ -111,7 +113,7 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     time.sleep(_settlingTime)
     
     print(f'[HOLD] Run test for {testT} seconds')
-    dataMain = delayCollect(ADC,delayT=testT)
+    dataMain = ADC.bufferCollect(delayT=testT)
     ADC.stop()
     
     print(f'[VPPR] Reset pressure regulator')
@@ -205,18 +207,18 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     testT       -> 5 s
     '''
     print(f'[IMPL] Run lead-in for {5} seconds')
-    dataLead = delayCollect(ADC,delayT=5)
+    dataLead = ADC.bufferCollect(delayT=5)
 
     print(f'[VPPR] Set hold pressure to {pressure} bar')
     PR.set_P(pressure)
-    dataPulse = delayCollect(ADC,delayT=0.5)
+    dataPulse = ADC.bufferCollect(delayT=0.5)
     
     print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
     time.sleep(0.5)
     
     print(f'[IMPL] Run impulse response for {testT} seconds')
-    dataMain = delayCollect(ADC,delayT=testT)
+    dataMain = ADC.bufferCollect(delayT=testT)
     ADC.stop()
     
     PR.set_P(-1)
