@@ -12,6 +12,16 @@ Package of classes for running sensors and actuators with RPi
 [tof]\t-> Time of flight sensor VL6180x
 [imu]\t-> 9-dof Inertial Measurement Unit
 [pce]\t-> PCE handheld loadcell
+
+OTHER COMMANDS:
+step(PR,ADC,pressure,testT,sampleT)
+hold(PR,ADC,pressure,testT,sampleT)
+impulse(PR,ADC,pressure,testT)
+
+PR,ADC -> Instances of the pressure regulator and adc classes (already defined)
+pressure -> Demand pressure in bar
+testT -> Time to run test for in seconds
+sampleT -> Approximate sample period
 '''
 
 import numpy as np
