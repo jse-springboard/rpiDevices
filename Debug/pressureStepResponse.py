@@ -111,7 +111,7 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     dataInterval = int(round(sampleT/(dataMain['Time'].max() / dataMain.count()[0])))
     print(f'[DBUG] Data interval set to {dataInterval}')
 
-    dataFrame = dataMain.rolling(window=dataInterval,center=True).mean().dropna().iloc[0::dataInterval,:].reindex()
+    dataFrame = dataMain.rolling(window=dataInterval,center=True).mean().dropna().iloc[0::dataInterval,:].reset_index(drop=True)
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nHold pressure change results')
