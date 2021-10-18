@@ -27,7 +27,7 @@ sampleT -> Approximate sample period
 import numpy as np
 import pandas as pd
 import os, subprocess, serial, re, ctypes
-from time import sleep
+from time import sleep,time
 
 import board
 import busio
@@ -509,6 +509,34 @@ class adc24:
         times = [val for i, val in enumerate(times) if ((i == 0) or (round(val,3) != 0.0))]
         
         return values_out,times
+
+    def bufferCollect(self,delayT=1,_delayTolerance=0.5,_print=False):
+        '''
+        Function to collect and manage buffer during a pause.
+        Returns dataframe of output.
+        '''
+        stopT = delayT-_delayTolerance
+
+        t0 = time()
+        now = 0.0
+
+        dataOut = self.collect(nsamples=10,method='stream',dataframe=True)
+
+        while now < stopT:
+            try:
+                sleep(_delayTolerance)
+
+                dataOut = pd.concat([dataOut,self.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
+                
+                if _print==True:
+                    print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
+                
+                now = time() - t0
+
+            except KeyboardInterrupt:
+                break
+        
+        return dataOut
 
     def collect(self,nsamples=1,method='block',reset=0,dataframe=False):
         '''
