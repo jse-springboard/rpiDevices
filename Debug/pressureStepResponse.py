@@ -23,36 +23,6 @@ import time
 import datetime
 import pandas as pd
 
-# def delayCollect(ADC,delayT=5,_delayTolerance=0.5,_print=False):
-#     '''
-#     Function to collect and manage buffer during a pause.
-#     Returns dataframe of output.
-
-#     MUST PASS A adc24() INSTANCE!
-#     '''
-#     stopT = delayT-_delayTolerance
-
-#     t0 = time.time()
-#     now = 0.0
-
-#     dataOut = ADC.collect(nsamples=10,method='stream',dataframe=True)
-
-#     while now < stopT:
-#         try:
-#             time.sleep(_delayTolerance)
-
-#             dataOut = pd.concat([dataOut,ADC.collect(nsamples=10,method='stream',dataframe=True)],ignore_index=True)
-            
-#             if _print==True:
-#                 print(f'({now:.1f}/{delayT}) Pressure = {float(dataOut.iloc[-1,2]):.2f} bar    Flow rate = {float(dataOut.iloc[-1,15]):.2f} ul/min        ',end='\r')
-            
-#             now = time.time() - t0
-
-#         except KeyboardInterrupt:
-#             break
-    
-#     return dataOut
-
 def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     '''
     Record response to a step change in pressure
@@ -80,9 +50,15 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
 
     dataInterval = int(round(sampleT/(dataFrame['Time'].max() / dataFrame.count()[0])))
-    print(f'[DBUG] Data interval set to {dataInterval}')
+
+    if dataInterval < 1:
+        dataInterval = 1
+        print(f'[DBUG] Data interval set to highest resolution')
+    else:    
+        print(f'[DBUG] Data interval set to {dataInterval}')
 
     dataFrame = dataFrame.rolling(window=dataInterval,center=True).mean().dropna().iloc[0::dataInterval,:].reset_index(drop=True)
+    
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nStep pressure change results')
