@@ -22,7 +22,7 @@ from rpiDevices.rpi import adc24, vppr
 import time
 import pandas as pd
 
-def delayCollect(ADC,delayT=5,_delayTolerance=0.05,_print=False):
+def delayCollect(ADC,delayT=5,_delayTolerance=0.5,_print=False):
     '''
     Function to collect and manage buffer during a pause.
     Returns dataframe of output.
