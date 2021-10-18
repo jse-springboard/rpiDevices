@@ -108,7 +108,7 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
 
-    dataInterval = round(sampleT/(dataMain['Time'].max() / dataMain.count()[0]))
+    dataInterval = int(round(sampleT/(dataMain['Time'].max() / dataMain.count()[0])))
     print(f'[DBUG] Data interval set to {dataInterval}')
 
     dataFrame = dataMain.rolling(window=dataInterval,center=True).mean().iloc[::dataInterval,:].dropna()
