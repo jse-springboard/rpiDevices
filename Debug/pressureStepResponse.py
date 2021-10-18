@@ -96,12 +96,13 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     PR.set_P(pressure)
     time.sleep(10)
 
-    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=sampleT)
+    dataMain = delayCollect(ADC,delayT=testT)
     ADC.stop()
     
     PR.set_P(-1)
 
-    dataFrame = dataMain
+    meanDt = dataMain['Time'].max() / dataMain.count()[0]
+    dataFrame = dataMain.rolling(round((sampleT/meanDt),0))
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nHold pressure change results')
