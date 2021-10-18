@@ -62,16 +62,25 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     testT       -> 5 s
     sampleT     -> 0.2 s
     '''
-    dataLead = delayCollect(ADC,delayT=5,_delayTolerance=sampleT)
+    print(f'[STEP] Run lead-in for {5} seconds')
+    dataLead = delayCollect(ADC,delayT=5)
 
+    print(f'[VPPR] Set hold pressure to {pressure} bar')
     PR.set_P(pressure)
 
-    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=sampleT)
+    print(f'[STEP] Run test for {testT} seconds')
+    dataMain = delayCollect(ADC,delayT=testT)
     ADC.stop()
     
+    print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
 
     dataFrame = pd.concat([dataLead,dataMain],ignore_index=True)
+
+    dataInterval = int(round(sampleT/(dataFrame['Time'].max() / dataFrame.count()[0])))
+    print(f'[DBUG] Data interval set to {dataInterval}')
+
+    dataFrame = dataFrame.rolling(window=dataInterval,center=True).mean().dropna().iloc[0::dataInterval,:].reset_index(drop=True)
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nStep pressure change results')
@@ -195,18 +204,27 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     pressure    -> 5 bar
     testT       -> 5 s
     '''
-    dataLead = delayCollect(ADC,delayT=5,_delayTolerance=0.5)
+    print(f'[IMPL] Run lead-in for {5} seconds')
+    dataLead = delayCollect(ADC,delayT=5)
 
+    print(f'[VPPR] Set hold pressure to {pressure} bar')
     PR.set_P(pressure)
-    dataPulse = delayCollect(ADC,delayT=0.5,_delayTolerance=0.3)
+    dataPulse = delayCollect(ADC,delayT=0.5)
+    
+    print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
-    time.sleep(0.5)
-    dataMain = delayCollect(ADC,delayT=testT,_delayTolerance=0.5)
+    
+    print(f'[IMPL] Run impulse response for {testT} seconds')
+    dataMain = delayCollect(ADC,delayT=testT)
     ADC.stop()
     
     PR.set_P(-1)
 
     dataFrame = pd.concat([dataLead,dataPulse,dataMain],ignore_index=True)
+
+    print(f'[DBUG] Data interval set to HIGH_RES to capture impulse response')
+
+    dataFrame = dataMain.reset_index(drop=True)
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nImpulse pressure change results')
