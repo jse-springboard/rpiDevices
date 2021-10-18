@@ -213,6 +213,7 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     
     print(f'[VPPR] Reset pressure regulator')
     PR.set_P(-1)
+    time.sleep(0.5)
     
     print(f'[IMPL] Run impulse response for {testT} seconds')
     dataMain = delayCollect(ADC,delayT=testT)
