@@ -224,8 +224,6 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     dataFrame = pd.concat([dataLead,dataPulse,dataMain],ignore_index=True)
 
     print(f'[DBUG] Data interval set to HIGH_RES to capture impulse response')
-
-    dataFrame = dataMain.reset_index(drop=True)
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nImpulse pressure change results')
