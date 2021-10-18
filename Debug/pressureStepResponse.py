@@ -101,8 +101,9 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     
     PR.set_P(-1)
 
-    meanDt = dataMain['Time'].max() / dataMain.count()[0]
-    dataFrame = dataMain.rolling(round((sampleT/meanDt),0))
+    dataInteral = round(sampleT/(dataMain['Time'].max() / dataMain.count()[0]))
+    
+    dataFrame = dataMain.rolling(window=dataInteral,center=True).mean().iloc[::dataInteral,:]
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
     print(f'\nHold pressure change results')
