@@ -23,7 +23,7 @@ import time
 import datetime
 import pandas as pd
 
-def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
+def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,ID='Step'):
     '''
     Record response to a step change in pressure
     --------------------------------------------
@@ -61,16 +61,16 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5):
     
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
-    print(f'\nStep pressure change results')
+    print(f'\n{ID} pressure change results')
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/StepDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/StepDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
 
     return dataFrame
 
-def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
+def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10,ID='Hold'):
     '''
     Record change in pressure and flow rate over a period of time
     -------------------------------------------------------------
@@ -105,12 +105,12 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/HoldDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/HoldDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
 
     return dataFrame
 
-def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
+def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2,ID='Ramp'):
     '''
     Record response to a ramped change in pressure
     ----------------------------------------------
@@ -162,8 +162,8 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
     print(f'----------------------------')
     print(dataFrame.describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./RampDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./RampDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./{ID}DataFlow.csv',index=False,header=True)
 
     # with open('./RampDataPressure.csv') as f:
     #     plot_scatter(f=f,xs='',ys='',size=20,pch='x',colour='white',title='Ramp response - Pressure')
@@ -172,7 +172,7 @@ def ramp(PR,ADC,pressure=2.0,rampT=5.0,testT=5.0,sampleT=0.2):
 
     return dataFrame
 
-def impulse(PR,ADC,pressure=5.0,testT=5.0):
+def impulse(PR,ADC,pressure=5.0,testT=5.0,ID='Impulse'):
     '''
     Record response to pressure impulse
     -----------------------------------
@@ -208,8 +208,8 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/ImpulseDataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/ImpulseDataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
 
     return dataFrame
 
