@@ -98,6 +98,9 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10,ID='Hold')
     dataInterval = int(round(sampleT/(dataMain['Time'].max() / dataMain.count()[0])))
     print(f'[DBUG] Data interval set to {dataInterval}')
 
+    if dataInterval <= 0:
+        dataInterval = 1
+
     dataFrame = dataMain.rolling(window=dataInterval,center=True).mean().dropna().iloc[0::dataInterval,:].reset_index(drop=True)
     dataFrame.columns = ['Time','Pressure (bar)','Flow rate (ul/min)']
 
@@ -105,8 +108,8 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10,ID='Hold')
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv(f'./responsePlots/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv(f'./responsePlots/{ID}DataFlow.csv',index=False,header=True)
 
     return dataFrame
 
