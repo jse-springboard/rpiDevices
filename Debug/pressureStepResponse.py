@@ -65,8 +65,9 @@ def step(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,ID='Step'):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv(f'./Data/pressureResponse/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv(f'./Data/pressureResponse/{ID}DataFlow.csv',index=False,header=True)
+    os.system(f'cd Data/pressureResponse && git add -A && git commit -m "{ID}"')
 
     return dataFrame
 
@@ -212,8 +213,9 @@ def impulse(PR,ADC,pressure=5.0,testT=5.0,ID='Impulse'):
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv('./responsePlots/{ID}DataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv('./responsePlots/{ID}DataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv(f'./Data/pressureResponse/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv(f'./Data/pressureResponse/{ID}DataFlow.csv',index=False,header=True)
+    os.system(f'cd Data/pressureResponse && git add -A && git commit -m "{ID}"')
 
     return dataFrame
 
