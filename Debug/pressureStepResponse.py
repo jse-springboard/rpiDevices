@@ -19,7 +19,7 @@ summary     -> [DataFrame] Statistical summary of the results
 '''
 
 from rpiDevices.rpi import adc24, vppr
-import time
+import time, os
 import datetime
 import pandas as pd
 
@@ -108,8 +108,9 @@ def hold(PR,ADC,pressure=2.0,testT=5.0,sampleT=0.5,_settlingTime = 10,ID='Hold')
     print(f'----------------------------')
     print(dataFrame.loc[:,['Pressure (bar)','Flow rate (ul/min)']].describe())
 
-    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv(f'./responsePlots/{ID}DataPressure.csv',index=False,header=True)
-    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv(f'./responsePlots/{ID}DataFlow.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Pressure (bar)']].to_csv(f'./Data/pressureResponse/{ID}DataPressure.csv',index=False,header=True)
+    dataFrame.loc[:,['Time','Flow rate (ul/min)']].to_csv(f'./Data/pressureResponse/{ID}DataFlow.csv',index=False,header=True)
+    os.system(f'cd Data/pressureResponse && git add -A && git commit -m "{ID}"')
 
     return dataFrame
 
